@@ -2094,7 +2094,8 @@ def calculate_sell_score(klines: List[DailyData]) -> Tuple[int, str, Dict[str, b
             score -= 1
             reasons.append("KDJ死叉")
 
-    return score, items
+    reason_str = "；".join(reasons) if reasons else "无扣分项"
+    return score, reason_str, items
 
 
 def detect_trade_signal(klines: List[DailyData]) -> TradeSignal:
@@ -2418,7 +2419,7 @@ def analyze_stock(ts_code: str, days: int = 100) -> IndicatorResult:
         result.is_brick_flip_green = brick_sys['is_brick_flip_green']
 
     # 卖出评分
-    sell_score, sell_items = calculate_sell_score(klines)
+    sell_score, sell_desc, sell_items = calculate_sell_score(klines)
     result.sell_score = sell_score
     result.sell_items = sell_items
 
