@@ -675,6 +675,61 @@ def precompute_bbi_sequence(klines: List[DailyData]) -> List[float]:
     return result
 
 
+def precompute_macd_sequence(klines: List[DailyData],
+                              fast: int = 12, slow: int = 26, signal: int = 9) -> Tuple[List[float], List[float], List[float]]:
+    """
+    预计算全量 MACD 序列（增量算法，O(n)）
+
+    返回每一天的 (DIF, DEA, MACD_HIST)。
+    对于数据不足的天数，返回 0.0。
+    """
+    n = len(klines)
+    dif_seq = [0.0] * n
+    dea_seq = [0.0] * n
+    macd_seq = [0.0] * n
+
+    if n < slow:
+        return dif_seq, dea_seq, macd_seq
+
+    closes = [k.close for k in klines]
+
+    # 增量计算 EMA
+    k_fast = 2 / (fast + 1)
+    k_slow = 2 / (slow + 1)
+
+    ema_fast = [closes[0]]
+    ema_slow = [closes[0]]
+
+    for i in range(1, n):
+        ema_fast.append(closes[i] * k_fast + ema_fast[-1] * (1 - k_fast))
+        ema_slow.append(closes[i] * k_slow + ema_slow[-1] * (1 - k_slow))
+
+    # DIF 从 slow-1 开始有效
+    dif_list = []
+    for i in range(slow - 1, n):
+        dif_val = ema_fast[i] - ema_slow[i]
+        dif_list.append(dif_val)
+        dif_seq[i] = dif_val
+
+    if len(dif_list) < signal:
+        return dif_seq, dea_seq, macd_seq
+
+    # 增量计算 DEA (DIF 的 EMA)
+    k_signal = 2 / (signal + 1)
+    dea = [dif_list[0]]
+
+    for i in range(1, len(dif_list)):
+        dea_val = dif_list[i] * k_signal + dea[-1] * (1 - k_signal)
+        dea.append(dea_val)
+
+        dea_idx = slow - 1 + i
+        if dea_idx < n:
+            dea_seq[dea_idx] = dea_val
+            macd_seq[dea_idx] = 2 * (dif_list[i] - dea_val)
+
+    return dif_seq, dea_seq, macd_seq
+
+
 def calculate_macd(klines: List[DailyData],
                    fast: int = 12, slow: int = 26, signal: int = 9) -> Tuple[List[float], List[float], List[float]]:
     """

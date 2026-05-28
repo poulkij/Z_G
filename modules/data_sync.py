@@ -273,7 +273,7 @@ class DataSyncer:
             # 导入指标计算模块
             try:
                 from .indicators import (
-                    get_kline_data, calculate_kdj, calculate_macd,
+                    get_kline_data, precompute_kdj_sequence, precompute_macd_sequence,
                     calculate_bbi, calculate_ma, calculate_rsi_multi, calculate_wr_multi,
                     calculate_bollinger, calculate_vol_ratio, calculate_zg_white,
                     calculate_dg_yellow, detect_double_line_cross, detect_needle_20,
@@ -283,7 +283,7 @@ class DataSyncer:
                 )
             except ImportError:
                 from indicators import (
-                    get_kline_data, calculate_kdj, calculate_macd,
+                    get_kline_data, precompute_kdj_sequence, precompute_macd_sequence,
                     calculate_bbi, calculate_ma, calculate_rsi_multi, calculate_wr_multi,
                     calculate_bollinger, calculate_vol_ratio, calculate_zg_white,
                     calculate_dg_yellow, detect_double_line_cross, detect_needle_20,
@@ -297,6 +297,10 @@ class DataSyncer:
             if not klines:
                 return 0
 
+            # 预计算指标序列（避免循环中O(n²)重复计算）
+            kdj_seq = precompute_kdj_sequence(klines) if len(klines) >= 9 else None
+            macd_dif_seq, macd_dea_seq, macd_hist_seq = precompute_macd_sequence(klines) if len(klines) >= 30 else (None, None, None)
+
             # 准备写入数据
             with get_connection() as conn:
                 cursor = conn.cursor()
@@ -307,12 +311,19 @@ class DataSyncer:
                     today = kline
                     yesterday = sub_klines[-2] if len(sub_klines) > 1 else None
 
-                    # 获取各项指标
-                    k, d, j = calculate_kdj(sub_klines) if len(sub_klines) >= 9 else (50, 50, 50)
-                    macd_result = calculate_macd(sub_klines) if len(sub_klines) >= 30 else ([], [], [])
-                    dif = macd_result[0][-1] if macd_result[0] else 0
-                    dea = macd_result[1][-1] if macd_result[1] else 0
-                    macd_hist = macd_result[2][-1] if macd_result[2] else 0
+                    # 获取各项指标（优先从预计算序列取值）
+                    if kdj_seq:
+                        k, d, j = kdj_seq[i]
+                    else:
+                        k, d, j = 50, 50, 50
+
+                    if macd_dif_seq:
+                        dif = macd_dif_seq[i]
+                        dea = macd_dea_seq[i]
+                        macd_hist = macd_hist_seq[i]
+                    else:
+                        dif, dea, macd_hist = 0, 0, 0
+
                     bbi = calculate_bbi(sub_klines) if len(sub_klines) >= 24 else 0
 
                     closes = [k.close for k in sub_klines]
