@@ -21,17 +21,19 @@ class MiniMaxProvider(LLMProvider):
     """MiniMax 提供商 (支持 OpenAI 兼容模式)"""
     
     DEFAULT_BASE_URL = "https://api.minimaxi.com/v1/chat/completions"
-    DEFAULT_MODEL = "MiniMax-M2"  # 或其他模型名
+    DEFAULT_MODEL = "MiniMax-M2.7"
     
     def __init__(self, api_key: Optional[str] = None, 
                  base_url: Optional[str] = None,
                  model: Optional[str] = None):
-        self.api_key = api_key or os.getenv("MINIMAX_API_KEY", "")
-        self.base_url = base_url or os.getenv("MINIMAX_BASE_URL", self.DEFAULT_BASE_URL)
-        self.model = model or os.getenv("MINIMAX_MODEL", self.DEFAULT_MODEL)
+        # 使用通用的环境变量名称
+        self.api_key = api_key or os.getenv("LLM_API_KEY", "")
+        self.base_url = base_url or os.getenv("LLM_BASE_URL", self.DEFAULT_BASE_URL)
+        self.model = model or os.getenv("LLM_MODEL", self.DEFAULT_MODEL)
         
+        # 如果未配置 API Key，则不初始化（由调用方处理）
         if not self.api_key:
-            raise ValueError("MINIMAX_API_KEY not set")
+            raise ValueError("LLM_API_KEY not set. Please configure LLM_API_KEY in .env")
     
     def generate(self, system_prompt: str, user_message: str,
                  temperature: float = 0.7, stream: bool = False) -> str:

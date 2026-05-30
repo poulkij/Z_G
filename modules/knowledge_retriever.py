@@ -42,9 +42,18 @@ class KnowledgeRetriever:
             kb_api_url = os.getenv("KB_API_URL", "http://localhost:8000")
         self.api_url = kb_api_url.rstrip("/")
         self.top_k = top_k
+        
+        # 读取开关：默认关闭，设为 true 且提供 KB_API_URL 才启用
+        self.enabled = os.getenv("KB_ENABLED", "false").lower() == "true"
     
     def retrieve(self, query: str, intent: str) -> List[KnowledgeCard]:
-        """按意图检索知识库"""
+        """按意图检索知识库
+        
+        如果 KB_ENABLED=false，直接返回空列表，不发起请求。
+        """
+        if not self.enabled:
+            return []
+        
         # 1. 调用知识库 API
         params = {"query": query, "top_k": self.top_k * 2, "mode": "hybrid"}
         try:

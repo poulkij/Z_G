@@ -28,8 +28,11 @@ INTENT_LABELS = {
 
 
 def get_llm():
-    """获取 LLM 实例（优先 MiniMax）"""
-    api_key = os.getenv("MINIMAX_API_KEY", "")
+    """获取 LLM 实例
+    
+    如果未配置 LLM_API_KEY，返回 None，不影响主流程。
+    """
+    api_key = os.getenv("LLM_API_KEY", "")
     if not api_key:
         return None
     
@@ -37,10 +40,11 @@ def get_llm():
         from .llm_providers import MiniMaxProvider
         return MiniMaxProvider(
             api_key=api_key,
-            base_url=os.getenv("MINIMAX_BASE_URL"),
-            model=os.getenv("MINIMAX_MODEL"),
+            base_url=os.getenv("LLM_BASE_URL"),
+            model=os.getenv("LLM_MODEL"),
         )
-    except Exception:
+    except Exception as e:
+        print(f"[警告] LLM 初始化失败: {e}")
         return None
 
 
