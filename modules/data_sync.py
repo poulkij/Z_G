@@ -7,6 +7,8 @@
 import os
 import time
 import logging
+import threading
+import concurrent.futures
 from datetime import datetime, timedelta
 from typing import List, Optional, Dict, Any
 from pathlib import Path
@@ -54,15 +56,20 @@ class DataSyncer:
         # 限流控制：120次/分钟
         self.min_interval = 60 / 120
         self.last_request_time: dict[str, float] = {}
+        self._rate_limit_lock = threading.Lock()
 
     def _rate_limit(self, api_name: str):
-        """限流控制"""
-        now = time.time()
-        last = self.last_request_time.get(api_name, 0)
-        elapsed = now - last
-        if elapsed < self.min_interval:
-            time.sleep(self.min_interval - elapsed)
-        self.last_request_time[api_name] = time.time()
+        """线程安全的限流控制"""
+        with self._rate_limit_lock:
+            now = time.time()
+            last = self.last_request_time.get(api_name, 0)
+            elapsed = now - last
+            if elapsed < self.min_interval:
+                sleep_time = self.min_interval - elapsed
+                time.sleep(sleep_time)
+                self.last_request_time[api_name] = now + sleep_time
+            else:
+                self.last_request_time[api_name] = now
 
     def _log_sync(self, data_type: str, ts_code: Optional[str], last_date: str,
                   status: str, message: str = ""):
@@ -211,7 +218,7 @@ class DataSyncer:
     def sync_all_daily_kline(self, ts_codes: Optional[List[str]] = None,
                               days: int = 730) -> Dict[str, int]:
         """
-        批量同步多只股票的日线数据
+        批量同步多只股票的日线数据（并发执行）
 
         Args:
             ts_codes: 股票代码列表，None 表示同步所有股票
@@ -234,27 +241,43 @@ class DataSyncer:
         # 计算起始日期
         start_date = (datetime.now() - timedelta(days=days)).strftime("%Y%m%d")
         end_date = datetime.now().strftime("%Y%m%d")
+        
+        # 进度追踪锁
+        progress_lock = threading.Lock()
+        completed = 0
+        total = len(ts_codes)
 
-        for i, ts_code in enumerate(ts_codes):
+        def sync_single(ts_code):
+            nonlocal completed
             try:
                 # 检查是否已有数据，避免重复同步
                 last_date = self._get_last_date("daily_kline", ts_code)
                 if last_date:
                     last_dt = datetime.strptime(last_date, "%Y%m%d")
                     if (datetime.now() - last_dt).days < 2:
-                        # 2天内已同步过，跳过
-                        continue
+                        with progress_lock:
+                            completed += 1
+                        return ts_code, 0 # Skip
 
                 count = self.sync_daily_kline(ts_code, start_date, end_date)
-                results[ts_code] = count
-
-                # 进度显示
-                if (i + 1) % 10 == 0:
-                    logger.info(f"进度: {i + 1}/{len(ts_codes)}")
-
+                
+                with progress_lock:
+                    completed += 1
+                    if completed % 10 == 0:
+                        logger.info(f"进度: {completed}/{total}")
+                        
+                return ts_code, count
             except Exception as e:
                 logger.error(f"同步失败 {ts_code}: {e}")
-                results[ts_code] = 0
+                with progress_lock:
+                    completed += 1
+                return ts_code, 0
+
+        with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+            futures = [executor.submit(sync_single, code) for code in ts_codes]
+            for future in concurrent.futures.as_completed(futures):
+                code, count = future.result()
+                results[code] = count
 
         logger.info(f"批量同步完成，成功 {sum(1 for v in results.values() if v > 0)}/{len(ts_codes)}")
         return results
@@ -402,7 +425,7 @@ VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 
 
     def sync_all_indicators(self, ts_codes: Optional[List[str]] = None) -> Dict[str, int]:
         """
-        批量同步所有股票的指标缓存
+        批量同步所有股票的指标缓存（并发执行）
 
         Args:
             ts_codes: 股票代码列表，None 表示同步所有有K线数据的股票
@@ -420,17 +443,30 @@ VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 
 
         logger.info(f"开始批量同步指标缓存，共 {len(ts_codes)} 只股票...")
 
-        for i, ts_code in enumerate(ts_codes):
+        progress_lock = threading.Lock()
+        completed = 0
+        total = len(ts_codes)
+
+        def sync_single(ts_code):
+            nonlocal completed
             try:
                 count = self.sync_indicator_cache(ts_code)
-                results[ts_code] = count
-
-                if (i + 1) % 10 == 0:
-                    logger.info(f"进度: {i + 1}/{len(ts_codes)}")
-
+                with progress_lock:
+                    completed += 1
+                    if completed % 10 == 0:
+                        logger.info(f"进度: {completed}/{total}")
+                return ts_code, count
             except Exception as e:
                 logger.error(f"指标同步失败 {ts_code}: {e}")
-                results[ts_code] = 0
+                with progress_lock:
+                    completed += 1
+                return ts_code, 0
+
+        with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+            futures = [executor.submit(sync_single, code) for code in ts_codes]
+            for future in concurrent.futures.as_completed(futures):
+                code, count = future.result()
+                results[code] = count
 
         logger.info(f"批量指标同步完成，成功 {sum(1 for v in results.values() if v > 0)}/{len(ts_codes)}")
         return results
@@ -511,7 +547,7 @@ VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 
     def sync_all_stk_factor(self, ts_codes: Optional[List[str]] = None,
                             days: int = 365) -> Dict[str, int]:
         """
-        批量同步多只股票的 Tushare 官方指标
+        批量同步多只股票的 Tushare 官方指标（并发执行）
 
         Args:
             ts_codes: 股票代码列表，None 表示同步所有股票
@@ -532,18 +568,31 @@ VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 
 
         start_date = (datetime.now() - timedelta(days=days)).strftime("%Y%m%d")
         end_date = datetime.now().strftime("%Y%m%d")
+        
+        progress_lock = threading.Lock()
+        completed = 0
+        total = len(ts_codes)
 
-        for i, ts_code in enumerate(ts_codes):
+        def sync_single(ts_code):
+            nonlocal completed
             try:
                 count = self.sync_stk_factor(ts_code, start_date, end_date)
-                results[ts_code] = count
-
-                if (i + 1) % 10 == 0:
-                    logger.info(f"进度: {i + 1}/{len(ts_codes)}")
-
+                with progress_lock:
+                    completed += 1
+                    if completed % 10 == 0:
+                        logger.info(f"进度: {completed}/{total}")
+                return ts_code, count
             except Exception as e:
                 logger.error(f"Tushare 指标同步失败 {ts_code}: {e}")
-                results[ts_code] = 0
+                with progress_lock:
+                    completed += 1
+                return ts_code, 0
+
+        with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+            futures = [executor.submit(sync_single, code) for code in ts_codes]
+            for future in concurrent.futures.as_completed(futures):
+                code, count = future.result()
+                results[code] = count
 
         logger.info(f"批量 Tushare 指标同步完成，成功 {sum(1 for v in results.values() if v > 0)}/{len(ts_codes)}")
         return results
