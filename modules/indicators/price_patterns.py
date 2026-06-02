@@ -647,7 +647,7 @@ def calculate_brick_history(klines: list[DailyData], lookback: int = 20) -> tupl
 
     # 计算历史砖值序列（对比昨日大小判断红绿）
     # 1=红(涨), -1=绿(跌), 0=平
-    brick_colors = []
+    brick_colors: list[int] = []
     prev_brick = None
 
     for i in range(8, len(klines) + 1):
