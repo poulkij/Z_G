@@ -12,6 +12,7 @@ def parser():
 
 # ==================== ParseResult 基础 ====================
 
+
 class TestParseResult:
     def test_dataclass_fields(self):
         r = ParseResult(success=True, confidence=0.8, data={"a": 1}, missing_fields=[])
@@ -28,9 +29,12 @@ class TestParseResult:
 
 # ==================== JSON 解析 ====================
 
+
 class TestParseJson:
     def test_json_object_full(self, parser):
-        text = json.dumps({"ts_code": "600519.SH", "action": "BUY", "price": 1800.0, "quantity": 100, "trade_date": "2026-01-15"})
+        text = json.dumps(
+            {"ts_code": "600519.SH", "action": "BUY", "price": 1800.0, "quantity": 100, "trade_date": "2026-01-15"}
+        )
         r = parser.parse(text)
         assert r.success is True
         assert r.confidence == 1.0
@@ -95,6 +99,7 @@ class TestParseJson:
 
 # ==================== CSV 解析 ====================
 
+
 class TestParseCsv:
     def test_csv_pipe_separated(self, parser):
         text = "股票代码|日期|买卖|单价|数量\n600519|2026-01-15|买入|1800|100"
@@ -134,6 +139,7 @@ class TestParseCsv:
 
 
 # ==================== 口语化解析 ====================
+
 
 class TestParseNatural:
     def test_full_natural_input(self, parser):
@@ -182,12 +188,14 @@ class TestParseNatural:
         text = "今天买茅台600519，1800元，100股"
         r = parser.parse(text)
         from datetime import datetime
+
         assert r.data["trade_date"] == datetime.now().strftime("%Y-%m-%d")
 
     def test_natural_date_yesterday(self, parser):
         text = "昨天买茅台600519，1800元，100股"
         r = parser.parse(text)
         from datetime import datetime, timedelta
+
         expected = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
         assert r.data["trade_date"] == expected
 
@@ -255,6 +263,7 @@ class TestParseNatural:
 
 # ==================== _map_fields ====================
 
+
 class TestMapFields:
     def test_chinese_field_names(self, parser):
         mapped = parser._map_fields({"股票代码": "600519", "买卖": "买入", "单价": 100, "股数": 10})
@@ -276,6 +285,7 @@ class TestMapFields:
 
 # ==================== _check_required_fields ====================
 
+
 class TestCheckRequired:
     def test_all_present(self, parser):
         data = {"trade_date": "2026-01-15", "ts_code": "600519.SH", "action": "BUY", "price": 100, "quantity": 10}
@@ -293,6 +303,7 @@ class TestCheckRequired:
 
 
 # ==================== confirm_and_fill ====================
+
 
 class TestConfirmAndFill:
     def test_confirm(self, parser):
@@ -314,9 +325,18 @@ class TestConfirmAndFill:
 
 # ==================== generate_confirm_message ====================
 
+
 class TestGenerateConfirm:
     def test_full_data(self, parser):
-        data = {"trade_date": "2026-01-15", "ts_code": "600519.SH", "name": "茅台", "action": "BUY", "price": 1800, "quantity": 100, "amount": 180000}
+        data = {
+            "trade_date": "2026-01-15",
+            "ts_code": "600519.SH",
+            "name": "茅台",
+            "action": "BUY",
+            "price": 1800,
+            "quantity": 100,
+            "amount": 180000,
+        }
         msg = parser.generate_confirm_message(data)
         assert "2026-01-15" in msg
         assert "茅台" in msg
@@ -338,9 +358,19 @@ class TestGenerateConfirm:
 
 # ==================== format_trade_for_review ====================
 
+
 class TestFormatTradeForReview:
     def test_full_trade(self):
-        data = {"trade_date": "2026-01-15", "ts_code": "600519.SH", "name": "茅台", "action": "BUY", "price": 1800, "quantity": 100, "amount": 180000, "reason": "B1信号"}
+        data = {
+            "trade_date": "2026-01-15",
+            "ts_code": "600519.SH",
+            "name": "茅台",
+            "action": "BUY",
+            "price": 1800,
+            "quantity": 100,
+            "amount": 180000,
+            "reason": "B1信号",
+        }
         text = format_trade_for_review(data)
         assert "2026-01-15" in text
         assert "茅台" in text
@@ -363,6 +393,7 @@ class TestFormatTradeForReview:
 
 # ==================== STOCK_NAME_MAP ====================
 
+
 class TestStockNameMap:
     def test_common_stocks_present(self):
         assert "茅台" in STOCK_NAME_MAP
@@ -379,6 +410,7 @@ class TestStockNameMap:
 
 
 # ==================== 边界情况 ====================
+
 
 class TestEdgeCases:
     def test_empty_string(self, parser):

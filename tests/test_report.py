@@ -22,6 +22,7 @@ from modules.report import (
 
 # ==================== 辅助工厂 ====================
 
+
 def _make_assessment(**kwargs) -> StockAssessment:
     """构造 StockAssessment 测试对象，提供合理默认值"""
     defaults = dict(
@@ -87,7 +88,31 @@ def _init_test_db(db_path: str, ts_codes: list[str] | None = None):
         conn.execute("INSERT OR REPLACE INTO stock_basic VALUES (?,?,?)", (tc, name, industry))
         conn.execute(
             "INSERT INTO indicator_cache VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
-            (tc, "20260115", 1800.0, 1.5, 1.2, 1790, 1750, 1700, 65, 60, 75, 5, 3, 0.5, 55, 50, 1750, 1850, 1650, "WATCH", "观察", 0, "NEUTRAL"),
+            (
+                tc,
+                "20260115",
+                1800.0,
+                1.5,
+                1.2,
+                1790,
+                1750,
+                1700,
+                65,
+                60,
+                75,
+                5,
+                3,
+                0.5,
+                55,
+                50,
+                1750,
+                1850,
+                1650,
+                "WATCH",
+                "观察",
+                0,
+                "NEUTRAL",
+            ),
         )
         conn.execute(
             "INSERT INTO financial_data VALUES (?,?,?,?)",
@@ -98,6 +123,7 @@ def _init_test_db(db_path: str, ts_codes: list[str] | None = None):
 
 
 # ==================== StockAssessment ====================
+
 
 class TestStockAssessment:
     def test_default_values(self):
@@ -121,6 +147,7 @@ class TestStockAssessment:
 
 
 # ==================== _fmt_pct / _fmt_opt / _above_below ====================
+
 
 class TestFormatters:
     def test_fmt_pct_positive(self):
@@ -168,6 +195,7 @@ class TestFormatters:
 
 # ==================== _classify_sector ====================
 
+
 class TestClassifySector:
     def test_known_industry(self):
         assert _classify_sector("证券") == "券商/金融"
@@ -182,6 +210,7 @@ class TestClassifySector:
 
 
 # ==================== _zge_comment ====================
+
 
 class TestZgeComment:
     def test_b1_signal(self):
@@ -247,6 +276,7 @@ class TestZgeComment:
 
 # ==================== render_assessment ====================
 
+
 class TestRenderAssessment:
     def test_empty_list(self):
         text = render_assessment([])
@@ -262,7 +292,26 @@ class TestRenderAssessment:
         assert "第三部分" in text
 
     def test_without_indicator(self):
-        a = _make_assessment(has_indicator=False, close=0, ma5=None, ma20=None, ma60=None, k=None, d=None, j=None, dif=None, dea=None, macd_hist=None, rsi6=None, rsi12=None, boll_mid=None, boll_upper=None, boll_lower=None, pe=None, pb=None)
+        a = _make_assessment(
+            has_indicator=False,
+            close=0,
+            ma5=None,
+            ma20=None,
+            ma60=None,
+            k=None,
+            d=None,
+            j=None,
+            dif=None,
+            dea=None,
+            macd_hist=None,
+            rsi6=None,
+            rsi12=None,
+            boll_mid=None,
+            boll_upper=None,
+            boll_lower=None,
+            pe=None,
+            pb=None,
+        )
         text = render_assessment([a])
         assert "待同步" in text
 
@@ -277,7 +326,30 @@ class TestRenderAssessment:
 
     def test_sector_classification(self):
         a1 = _make_assessment(ts_code="600519.SH", name="茅台", sector="消费/食品/农业", industry="白酒")
-        a2 = _make_assessment(ts_code="601318.SH", name="平安", sector="券商/金融", industry="保险", has_indicator=False, close=0, ma5=None, ma20=None, ma60=None, k=None, d=None, j=None, dif=None, dea=None, macd_hist=None, rsi6=None, rsi12=None, boll_mid=None, boll_upper=None, boll_lower=None, pe=None, pb=None)
+        a2 = _make_assessment(
+            ts_code="601318.SH",
+            name="平安",
+            sector="券商/金融",
+            industry="保险",
+            has_indicator=False,
+            close=0,
+            ma5=None,
+            ma20=None,
+            ma60=None,
+            k=None,
+            d=None,
+            j=None,
+            dif=None,
+            dea=None,
+            macd_hist=None,
+            rsi6=None,
+            rsi12=None,
+            boll_mid=None,
+            boll_upper=None,
+            boll_lower=None,
+            pe=None,
+            pb=None,
+        )
         text = render_assessment([a1, a2])
         assert "消费/食品/农业" in text
         assert "券商/金融" in text
@@ -294,6 +366,7 @@ class TestRenderAssessment:
 
 
 # ==================== write_assessment ====================
+
 
 class TestWriteAssessment:
     def test_write_to_file(self, tmp_path):
@@ -321,6 +394,7 @@ class TestWriteAssessment:
 
 
 # ==================== assess_watchlist ====================
+
 
 class TestAssessWatchlist:
     def test_empty_codes(self, mock_env_for_tests, tmp_path):
@@ -381,6 +455,7 @@ class TestAssessWatchlist:
 
 
 # ==================== MACRO_SECTORS ====================
+
 
 class TestMacroSectors:
     def test_sector_count(self):

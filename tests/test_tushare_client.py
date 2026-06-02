@@ -9,6 +9,7 @@ import pandas as pd
 
 # ==================== 初始化测试 ====================
 
+
 class TestTushareClientInit:
     """TushareClient 初始化逻辑"""
 
@@ -16,6 +17,7 @@ class TestTushareClientInit:
         """websearch 模式下不需要 token"""
         os.environ["DATA_MODE"] = "websearch"
         from modules.tushare_client import TushareClient
+
         client = TushareClient()
         assert client._pro is None
 
@@ -26,6 +28,7 @@ class TestTushareClientInit:
         os.environ.pop("TUSHARE_API_URL", None)
         import importlib
         import modules.tushare_client as tc
+
         importlib.reload(tc)
         with pytest.raises(ValueError):
             tc.TushareClient()
@@ -38,6 +41,7 @@ class TestTushareClientInit:
         # 需要 reload 模块以重新读取模块级变量
         import importlib
         import modules.tushare_client as tc
+
         importlib.reload(tc)
         with pytest.raises(ValueError, match="TUSHARE_API_URL"):
             tc.TushareClient()
@@ -46,6 +50,7 @@ class TestTushareClientInit:
         """自定义 token 覆盖环境变量"""
         os.environ["DATA_MODE"] = "websearch"
         from modules.tushare_client import TushareClient
+
         client = TushareClient(token="custom_token_123")
         assert client.token == "custom_token_123"
 
@@ -53,11 +58,13 @@ class TestTushareClientInit:
         """默认限流间隔 0.55s"""
         os.environ["DATA_MODE"] = "websearch"
         from modules.tushare_client import TushareClient
+
         client = TushareClient()
         assert client.min_request_interval == 0.55
 
 
 # ==================== 限流测试 ====================
+
 
 class TestRateLimit:
     """_rate_limit 方法"""
@@ -66,6 +73,7 @@ class TestRateLimit:
         """两次调用间隔不小于 min_request_interval"""
         os.environ["DATA_MODE"] = "websearch"
         from modules.tushare_client import TushareClient
+
         client = TushareClient()
         client.min_request_interval = 0.1  # 缩短测试时间
 
@@ -79,6 +87,7 @@ class TestRateLimit:
         """间隔足够时不 sleep"""
         os.environ["DATA_MODE"] = "websearch"
         from modules.tushare_client import TushareClient
+
         client = TushareClient()
         client.min_request_interval = 0.01
         client.last_request_time = time.time() - 10  # 10 秒前
@@ -91,6 +100,7 @@ class TestRateLimit:
 
 # ==================== API 方法测试（mock） ====================
 
+
 class TestApiMethods:
     """各 API 方法的 mock 测试"""
 
@@ -98,6 +108,7 @@ class TestApiMethods:
     def client(self, mock_env_for_tests):
         os.environ["DATA_MODE"] = "websearch"
         from modules.tushare_client import TushareClient
+
         c = TushareClient()
         c.min_request_interval = 0  # 测试时不限流
         return c
@@ -223,11 +234,13 @@ class TestApiMethods:
 
 # ==================== 模块级常量 ====================
 
+
 class TestModuleConstants:
     def test_tushare_api_url_from_env(self, mock_env_for_tests):
         """模块级常量从环境变量读取"""
         os.environ["TUSHARE_API_URL"] = "https://test.example.com"
         import importlib
         import modules.tushare_client as tc
+
         importlib.reload(tc)
         assert tc.TUSHARE_API_URL == "https://test.example.com"
