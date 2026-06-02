@@ -4,7 +4,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-blueviolet)](https://claude.ai/code)
-[![v2.9.0](https://img.shields.io/badge/version-2.9.0-red)](CHANGELOG.md)
+[![v2.10.0-rc.1](https://img.shields.io/badge/version-2.10.0--rc.1-red)](CHANGELOG.md)
 
 <br>
 
@@ -19,7 +19,7 @@
 
 ---
 
-## v2.9.0 能做什么
+## v2.10.0 能做什么
 
 > **不只是炒股工具，是多场景智能决策系统。**
 
@@ -46,11 +46,11 @@
 
 ### 完整功能清单
 
-**性能与架构优化（v2.9.0 新增）**
+**性能与架构优化（v2.10.0 新增）**
 - ⚡️ **60x 指标计算提速**：全面引入 Pandas 向量化引擎（替换 Python For 循环），严格匹配通达信（TDX）算法精度。
 - 🚀 **10x-50x 写入提速**：SQLite 数据同步全量采用 Batch Insert 并发写入（`executemany`），彻底消除性能瓶颈。
 - 🌐 **多线程网络 I/O**：全市场 5000+ 股票数据并发拉取（`ThreadPoolExecutor`），带线程安全的 Tushare API 防封限流锁。
-- 🧩 **模块深度解耦**：超大策略文件（1600行+）解耦为标准 Python 策略包，确保 264 项单元测试 100% 隔离安全。
+- 🧩 **模块深度解耦**：超大策略文件（1600行+）解耦为标准 Python 策略包，确保 367 项单元测试 100% 隔离安全。
 
 **意图识别（v2.8.0 新增）**
 - ✅ 四意图自动路由：stock / career / life / chat
@@ -149,7 +149,7 @@ python -m modules.data_sync sync --ts_code 600487.SH --days 120
 ### 4. 验证
 
 ```bash
-# 运行测试（261 passed, 1 skipped）
+# 运行测试（367 passed, 10 skipped）
 python -m pytest tests/ -v
 
 # 分析一只股票
@@ -346,7 +346,7 @@ zettaranc-skill/
 │   └── life_prompt.md          # Z哥人生决策框架
 ├── data/
 │   └── stock_data.db           # SQLite 数据库（8张表）
-├── modules/                    # Python 数据层（~6800 行）
+├── modules/                    # Python 数据层（~11800 行）
 │   ├── tushare_client.py       # Tushare API 封装
 │   ├── database.py             # SQLite 管理（8张表 + 事务上下文）
 │   ├── data_sync.py            # 数据同步（增量/全量，限流120次/分）
@@ -357,7 +357,7 @@ zettaranc-skill/
 │   │   ├── wave_theory.py      # 三波理论识别（建仓/拉升/冲刺波）
 │   │   ├── kirin_detector.py   # 麒麟会四阶段（吸筹/拉升/派发/回落）
 │   │   └── data_layer.py       # 数据接入 + 缓存层 + 可视化
-│   ├── strategies.py           # 30+ 战法识别引擎
+│   ├── strategies/             # 30+ 战法识别引擎（6 子模块）
 │   ├── screener.py             # 选股评分体系
 │   ├── backtest.py             # 策略组合回测框架
 │   ├── portfolio_diagnosis.py  # 持股检查端到端
@@ -373,8 +373,18 @@ zettaranc-skill/
 │   ├── setup_wizard.py         # 初始化配置向导
 │   └── zettaranc_voice.py      # 语料库 / LLM 提示词模板
 ├── knowledge/                  # 知识文档（14篇交易体系）
-├── tests/                      # 单元测试（pytest，264 用例）
-└── scripts/                    # 工具脚本
+├── tests/                      # 单元测试（pytest，367 用例，21 个测试文件）
+├── scripts/                    # 工具脚本（薄壳，业务逻辑在 modules/）
+│   ├── _common.py              # 共享工具（load_watchlist 等）
+│   ├── sync_watchlist.py       # 同步缺失的自选股 K 线
+│   ├── sync_and_compute.py     # 一站式同步 + 指标计算
+│   ├── batch_compute_indicators.py  # 批量计算指标缓存
+│   ├── generate_report.py      # 生成 Z 哥量化评估报告
+│   └── fetch_tushare_data.py   # Tushare 数据抓取（DEPRECATED）
+├── corpus/                     # 语料采集与质检工具
+│   ├── quality_check.py        # SKILL.md 质量自动检查（8 项）
+│   └── ...                     # 批量下载/转写/合并工具
+└── references/                 # 调研提炼文件
 ```
 
 ### 数据库表结构
@@ -482,6 +492,8 @@ zettaranc ❯ 辞职全职炒股？兄弟，我劝你慎重。
 
 | 版本 | 核心变化 |
 |------|---------|
+| **v2.10.0-rc.1** | CLI 3 bug 修复 + zt 统一入口、6 脚本薄壳化（-94%）、5 CI job + pre-commit 护栏、367 测试、代码审查修复 |
+| **v2.9.0** | 60x 指标计算提速（Pandas 向量化）、10x-50x 写入提速（executemany）、多线程并发拉取、模块解耦 |
 | **v2.7.0** | 数据层充实（真实财报/PE/PB/PS/资金流全量入库）、SAT/UAT 测试体系、策略 DB 路径修复、使用手册 |
 | **v2.6.0** | P2 核心模块（三波理论/麒麟会四阶段）、screener 新增选股条件 |
 | **v2.5.0** | P0/P1 指标补全（滴滴/金叉空/出货五式/灾后重建）、工程化补完（pyproject.toml / dotenv 统一 / Bug 修复） |

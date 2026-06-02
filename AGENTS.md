@@ -15,7 +15,7 @@
 - **数据层**：Python 模块 + SQLite 数据库 + Tushare API（JNB 模式）
 - **语料基础**：约 467 篇直播/付费课整理文章（~200 万字）+ 13 个 ztalk 视频 transcript（~12.7 万字）+ 9 篇交易心理系列（~3.3 万字）+ 15 篇 2026.4-5 月新增文章
 - **许可证**：MIT
-- **版本**：当前 v2.7.0，采用语义化版本
+- **版本**：当前 v2.10.0rc1，采用语义化版本
 
 ### 双模式架构
 
@@ -39,7 +39,7 @@ Python 数据层（modules/）              LLM 角色层（SKILL.md）
 │   ├─ kirin_detector.py 麒麟会四阶段
 │   └─ data_layer.py     数据接入/缓存/可视化
 ├─ screener.py           选股评分体系
-├─ strategies.py         30+ 战法识别
+├─ strategies/           30+ 战法识别（6 子模块）
 ├─ backtest.py           策略组合回测
 ├─ portfolio_diagnosis.py 持股检查
 ├─ watchlist.py          自选股观察池
@@ -61,13 +61,13 @@ Python 数据层（modules/）              LLM 角色层（SKILL.md）
 
 | 层级 | 技术 |
 |------|------|
-| 数据管道 | Python 3.14（标准库 + `sqlite3`、`pathlib`、`dataclasses`、`enum`） |
+| 数据管道 | Python 3.10+（标准库 + `sqlite3`、`pathlib`、`dataclasses`、`enum`） |
 | 外部数据 | `tushare`（Pro API，支持中转 URL）、`pandas`、`requests` |
 | 环境配置 | `python-dotenv`（`.env` 文件） |
 | 数据库 | SQLite（本地文件，8 张表，26 万+ 条真实数据） |
 ```ini
 DATA_MODE=jnb
-TUSHARE_TOKEN=你...n | 测试框架 | `pytest`（264 用例） |
+TUSHARE_TOKEN=你...n | 测试框架 | `pytest`（367 用例） |
 | 视频下载 | `yt-dlp`（语料采集） |
 | 语音转写 | `faster-whisper`（语料采集） |
 | 文档格式 | Markdown（全部文档与语料） |
@@ -81,6 +81,8 @@ yt-dlp>=2024.1.0
 faster-whisper>=1.0.0
 tushare>=1.4.0
 python-dotenv>=1.0.0
+pandas>=2.0.0
+requests>=2.28.0
 ```
 
 **`pyproject.toml`**：定义 `pip install -e .` 可安装为本地包，注册 `zt` 命令。
@@ -120,8 +122,10 @@ zettaranc-skill/
 │   ├── CHANGELOG.md            # 版本变更日志
 │   ├── TODO.md                 # 待办与路线图
 │   ├── CONTRIBUTING.md         # 贡献指南
-│   └── USER_GUIDE.md           # 详细使用手册
-├── modules/                    # Python 代码模块（~6800 行）
+│   ├── USER_GUIDE.md           # 详细使用手册
+│   ├── CONFIG_GUIDE.md         # 配置指南
+│   └── intent-router-design.md # 意图路由设计文档
+├── modules/                    # Python 代码模块（~11800 行）
 │   ├── __init__.py             # 包导出 + get_data_mode() + dotenv 统一加载
 │   ├── database.py             # SQLite 数据库管理：8 张表、事务上下文、CRUD
 │   ├── data_sync.py            # Tushare 数据同步器：增量/全量、限流 120次/分
@@ -131,9 +135,9 @@ zettaranc-skill/
 │   │   ├── volume_patterns.py  # 量价信号（卖出评分/交易信号/量比异动）
 │   │   ├── wave_theory.py      # 三波理论识别（建仓/拉升/冲刺波）
 │   │   ├── kirin_detector.py   # 麒麟会四阶段（吸筹/拉升/派发/回落）
-│   │   └─ data_layer.py       # 数据接入（get_kline_data/analyze_stock/缓存层/可视化）
+│   │   └── data_layer.py       # 数据接入（get_kline_data/analyze_stock/缓存层/可视化）
 │   ├── screener.py             # 选股与择时：曼城评分、B1评分、趋势/量价/风险评分
-│   ├── strategies.py           # 战法识别引擎：B1/B2/B3/SB1、长安战法、出货五式…
+│   ├── strategies/             # 战法识别引擎（6 子模块：core/base/compound/kirin/sell/vectorized）
 │   ├── backtest.py             # 策略组合回测框架
 │   ├── portfolio_diagnosis.py  # 持股检查端到端
 │   ├── watchlist.py            # 自选股观察池
@@ -141,8 +145,13 @@ zettaranc-skill/
 │   ├── trade_parser.py         # 随堂测试解析器：口语化/JSON/CSV 多格式输入
 │   ├── trade_manager.py        # 交易记录 CRUD、持仓计算、盈亏统计
 │   ├── trade_reviewer.py       # 交割单数据准备层：ReviewContext → LLM 提示词
+│   ├── report.py               # Z哥量化评估报告（assess_watchlist + render + write）
+│   ├── intent_router.py        # 意图路由：YAML 规则匹配
+│   ├── intent_chat.py          # LLM 聊天接口
+│   ├── knowledge_retriever.py  # RAG 知识检索
+│   ├── llm_providers.py        # LLM 提供者抽象
 │   ├── setup_wizard.py         # 初始化向导：JNB/websearch 双模式切换、API 连通性测试
-│   └── zettaranc_voice.py      # Z哥语料库 V3.0 + LLM 提示词模板
+│   └── zettaranc_voice.py      # Z哥语料库 V3.0 + LLM 提示词模板（DEPRECATED，v2.11.0 移除）
 ├── knowledge/                  # 知识文档（14+ 篇交易体系）
 │   ├── trading-core.md         # 四层交易结构、少妇战法 SOP、B1/B2/B3、量比战法
 │   ├── indicators.md           # MACD 一票否决、筹码理论、麒麟会、三波理论
@@ -158,7 +167,7 @@ zettaranc-skill/
 │   ├── advanced-patterns.md    # 长安战法、平行重炮、对称 VA
 │   ├── data_dictionary.md      # 输入数据字典（DailyBar/MoneyFlow/Financial）
 │   └── signal_dictionary.md    # 输出信号字典
-├── tests/                      # 单元测试（pytest，261 用例）
+├── tests/                      # 单元测试（pytest，367 用例，10 skipped）
 │   ├── conftest.py             # 测试基础设施：临时数据库 fixture、K线工厂函数
 │   ├── test_database.py        # 数据库初始化、连接、事务、表增删、幂等性
 │   ├── test_indicators.py      # 56+ 指标计算测试
@@ -170,15 +179,30 @@ zettaranc-skill/
 │   ├── test_portfolio_diagnosis.py  # 持股检查、防卖飞、战法匹配
 │   ├── test_watchlist.py       # 观察池增删改查、批量扫描
 │   ├── test_wave_theory.py     # 三波理论识别（12 用例）
-│   └── test_kirin_detector.py  # 麒麟会四阶段（15 用例）
-├── scripts/                    # 工具脚本
-│   ├── batch_download_bilibili.py   # 批量下载 B 站 ztalk 音频
-│   ├── batch_transcribe.py          # 批量音频转写（faster-whisper）
+│   ├── test_kirin_detector.py  # 麒麟会四阶段（15 用例）
+│   ├── test_backtest.py        # 回测框架测试
+│   ├── test_cli_screen.py      # CLI screen 子命令测试
+│   ├── test_cli_subparser.py   # CLI 子命令分发测试
+│   ├── test_data_e2e.py        # 数据层端到端测试
+│   ├── test_data_sync_extensions.py  # DataSyncer 新方法 + 薄壳脚本测试
+│   ├── test_indicator_cache.py # 指标缓存测试
+│   ├── test_indicators_realdata.py   # 真实数据指标测试
+│   ├── test_intent_router.py   # 意图路由测试
+│   ├── test_quality_check.py   # quality_check.py 测试
+│   └── test_rate_limiter.py    # 限流器测试
+├── scripts/                    # 工具脚本（薄壳，业务逻辑在 modules/）
+│   ├── _common.py              # 共享工具（load_watchlist 等）
+│   ├── sync_watchlist.py       # 同步缺失的自选股 K 线
+│   ├── sync_and_compute.py     # 一站式同步 + 指标计算
+│   ├── batch_compute_indicators.py  # 批量计算指标缓存
+│   ├── generate_report.py      # 生成 Z 哥量化评估报告
+│   └── fetch_tushare_data.py   # Tushare 数据抓取（DEPRECATED，v2.11.0 移除）
+├── corpus/                     # 语料采集与质检工具
+│   ├── quality_check.py        # SKILL.md 质量自动检查（8 项维度）
+│   ├── batch_download_bilibili.py   # 批量下载 B 站视频
+│   ├── batch_transcribe.py          # 批量音频转写
 │   ├── srt_to_transcript.py         # 字幕清洗为纯文本
-│   ├── fetch_tushare_data.py        # Tushare Pro 高权限数据抓取
-│   ├── sync_db_test.py              # db_test 全量数据库同步
-│   ├── merge_research.py            # 合并调研结果
-│   └── quality_check.py             # SKILL.md 质量自动检查（8 项维度）
+│   └── merge_research.py            # 合并调研结果
 └── references/
     └── research/               # 11 份调研提炼文件（蒸馏过程的中间产物）
         ├── 01-writings.md      # 著作与系统思考
@@ -230,7 +254,7 @@ pip install -e .
 ### 运行测试
 
 ```bash
-# 全部测试（预期：261 passed, 1 skipped）
+# 全部测试（预期：367 passed, 10 skipped）
 python -m pytest tests/ -v
 
 # 单文件测试
@@ -260,7 +284,7 @@ python -m modules.data_sync stk-factor --ts_code 600487.SH --days 365
 
 ```bash
 # 验证 SKILL.md 是否符合 8 项质量标准
-python scripts/quality_check.py SKILL.md
+python corpus/quality_check.py SKILL.md
 ```
 
 ### 语料采集脚本
@@ -342,12 +366,22 @@ python scripts/quality_check.py SKILL.md
 | `test_watchlist.py` | 观察池增删改查、批量扫描、按标签筛选 | ~4 |
 | `test_wave_theory.py` | 三波理论识别 | ~12 |
 | `test_kirin_detector.py` | 麒麟会四阶段 | ~15 |
+| `test_backtest.py` | 策略组合回测框架 | ~10 |
+| `test_cli_screen.py` | CLI screen 子命令、策略别名、watchlist 扫描 | ~19 |
+| `test_cli_subparser.py` | CLI 7 个子命令分发、参数解析 | ~31 |
+| `test_data_e2e.py` | 数据层端到端读写、NULL 安全处理 | ~177 |
+| `test_data_sync_extensions.py` | DataSyncer 新方法、薄壳脚本、行数约束 | ~29 |
+| `test_indicator_cache.py` | 指标缓存读写 | ~5 |
+| `test_indicators_realdata.py` | 真实 Tushare 数据指标验证 | ~9 |
+| `test_intent_router.py` | 意图路由规则匹配 | ~5 |
+| `test_quality_check.py` | corpus/quality_check.py 8 项检查 | ~10 |
+| `test_rate_limiter.py` | _RateLimiter 多进程安全限流 | ~14 |
 
 ### 运行预期
 
 ```bash
 $ python -m pytest tests/ -v
-# 预期：261 passed, 1 skipped
+# 预期：367 passed, 10 skipped
 ```
 
 ---

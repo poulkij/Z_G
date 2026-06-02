@@ -5,8 +5,6 @@
 核心目的：将考试中的判定规则转化为可验证的测试用例
 """
 
-import pytest
-
 
 class TestB1ExamRules:
     """B1 战法模块 10 道题核心规则验证"""
