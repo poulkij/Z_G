@@ -100,7 +100,7 @@ def _rate_limit_global() -> None:
 class DataSyncer:
     """数据同步器"""
 
-    def __init__(self, token: Optional[str] = None):
+    def __init__(self, token: str | None = None):
         self.token = token or os.environ.get("TUSHARE_TOKEN")
         # 仅在 JNB 模式下强制检查 Tushare 配置
         data_mode = os.getenv("DATA_MODE", "websearch")
@@ -129,7 +129,7 @@ class DataSyncer:
         # 保留旧字段更新，便于外部观察（不影响实际限流）
         self.last_request_time[api_name] = time.time()
 
-    def _log_sync(self, data_type: str, ts_code: Optional[str], last_date: str, status: str, message: str = ""):
+    def _log_sync(self, data_type: str, ts_code: str | None, last_date: str, status: str, message: str = ""):
         """记录同步日志"""
         with get_connection() as conn:
             cursor = conn.cursor()
@@ -141,7 +141,7 @@ class DataSyncer:
                 (data_type, ts_code, last_date, status, message),
             )
 
-    def _get_last_date(self, data_type: str, ts_code: Optional[str] = None) -> Optional[str]:
+    def _get_last_date(self, data_type: str, ts_code: str | None = None) -> str | None:
         """获取最后同步日期"""
         with get_connection() as conn:
             cursor = conn.cursor()
@@ -200,7 +200,7 @@ class DataSyncer:
 
     # ==================== 日线K线数据 ====================
 
-    def sync_daily_kline(self, ts_code: str, start_date: Optional[str] = None, end_date: Optional[str] = None) -> int:
+    def sync_daily_kline(self, ts_code: str, start_date: str | None = None, end_date: str | None = None) -> int:
         """
         同步单只股票的日线数据（增量更新）
 
@@ -328,7 +328,7 @@ class DataSyncer:
             results[code] = count
         return results
 
-    def sync_all_daily_kline(self, ts_codes: Optional[list[str]] = None, days: int = 730) -> dict[str, int]:
+    def sync_all_daily_kline(self, ts_codes: list[str] | None = None, days: int = 730) -> dict[str, int]:
         """
         批量同步多只股票的日线数据（并发执行）
 
@@ -611,7 +611,7 @@ VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 
             self._log_sync("indicator_cache", ts_code, "", "failed", str(e))
             return 0
 
-    def sync_all_indicators(self, ts_codes: Optional[list[str]] = None) -> dict[str, int]:
+    def sync_all_indicators(self, ts_codes: list[str] | None = None) -> dict[str, int]:
         """
         批量同步所有股票的指标缓存（并发执行）
 
@@ -659,7 +659,7 @@ VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 
         logger.info(f"批量指标同步完成，成功 {sum(1 for v in results.values() if v > 0)}/{len(ts_codes)}")
         return results
 
-    def sync_daily_and_compute(self, ts_codes: Optional[list[str]] = None, days: int = 730) -> dict[str, int]:
+    def sync_daily_and_compute(self, ts_codes: list[str] | None = None, days: int = 730) -> dict[str, int]:
         """
         一站式：同步日线 K 线 + 同步指标缓存
 
@@ -686,7 +686,7 @@ VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 
 
     # ==================== Tushare 官方指标（用于 diff 验证） ====================
 
-    def sync_stk_factor(self, ts_code: str, start_date: Optional[str] = None, end_date: Optional[str] = None) -> int:
+    def sync_stk_factor(self, ts_code: str, start_date: str | None = None, end_date: str | None = None) -> int:
         """
         同步单只股票的 Tushare 官方技术指标（stk_factor 接口）
 
@@ -759,7 +759,7 @@ VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 
             self._log_sync("stk_factor", ts_code, "", "failed", str(e))
             return 0
 
-    def sync_all_stk_factor(self, ts_codes: Optional[list[str]] = None, days: int = 365) -> dict[str, int]:
+    def sync_all_stk_factor(self, ts_codes: list[str] | None = None, days: int = 365) -> dict[str, int]:
         """
         批量同步多只股票的 Tushare 官方指标（并发执行）
 
@@ -897,7 +897,7 @@ VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 
             self._log_sync("daily_basic", ts_code, "", "failed", str(e))
             return 0
 
-    def sync_all_daily_basic(self, ts_codes: Optional[list[str]] = None, days: int = 730) -> dict[str, int]:
+    def sync_all_daily_basic(self, ts_codes: list[str] | None = None, days: int = 730) -> dict[str, int]:
         """
         批量同步多只股票的每日估值指标（并发执行）
 

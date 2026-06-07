@@ -477,7 +477,7 @@ def detect_all_strategies(ts_code: str, days: int = 120) -> list[StrategySignal]
     return signals
 
 
-def get_latest_signal(ts_code: str, days: int = 120) -> Optional[StrategySignal]:
+def get_latest_signal(ts_code: str, days: int = 120) -> StrategySignal | None:
     """
     获取最新战法信号
 

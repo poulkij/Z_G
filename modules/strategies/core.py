@@ -103,13 +103,13 @@ class StrategySignal:
 
     # 交易建议
     action: str = "WATCH"  # BUY/SELL/HOLD/WATCH
-    target_price: Optional[float] = None
-    stop_loss: Optional[float] = None
-    risk_ratio: Optional[float] = None
+    target_price: float | None = None
+    stop_loss: float | None = None
+    risk_ratio: float | None = None
 
     # 扩展字段（部分策略使用）
-    price: Optional[float] = None  # 信号产生时的价格
-    reason: Optional[str] = None  # 信号原因说明
+    price: float | None = None  # 信号产生时的价格
+    reason: str | None = None  # 信号原因说明
 
     # 信号优先级（由策略检测函数自动填入）
     priority: Priority = Priority.OBSERVE

@@ -30,7 +30,7 @@ def check_env_exists() -> bool:
     return bool(token) and "你的" not in token and data_mode != ""
 
 
-def check_data_mode() -> Optional[str]:
+def check_data_mode() -> str | None:
     """返回当前数据模式：jnb / websearch / None（未配置）"""
     return os.environ.get("DATA_MODE", None)
 
@@ -40,7 +40,7 @@ def get_mode_display_name(mode: str) -> str:
     return MODE_NAMES.get(mode, mode)
 
 
-def write_env_file(token: Optional[str] = None, mode: str = MODE_NORMAL) -> str:
+def write_env_file(token: str | None = None, mode: str = MODE_NORMAL) -> str:
     """
     写入 .env 文件
 

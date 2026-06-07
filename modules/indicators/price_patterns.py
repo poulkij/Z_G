@@ -739,7 +739,7 @@ def detect_fanbao(klines: list[DailyData]) -> bool:
     return is_red and is_green_yesterday and is_fanbao
 
 
-def detect_volume_pattern(today: DailyData, yesterday: Optional[DailyData] = None) -> dict[str, bool]:
+def detect_volume_pattern(today: DailyData, yesterday: DailyData | None = None) -> dict[str, bool]:
     """
     检测量价形态
 

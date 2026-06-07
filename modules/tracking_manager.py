@@ -155,7 +155,7 @@ class TrackingManager:
             print(f"查询跟踪池失败: {e}")
             return []
     
-    def get_stock_info(self, ts_code: str) -> Optional[Dict[str, Any]]:
+    def get_stock_info(self, ts_code: str) -> Dict[str, Any] | None:
         """
         获取股票的跟踪信息
         

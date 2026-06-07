@@ -15,7 +15,7 @@ class ParseResult:
 
     success: bool
     confidence: float  # 0-1 置信度
-    data: Optional[dict[str, Any]]
+    data: dict[str, Any] | None
     missing_fields: list  # 缺失的字段
     error_message: str = ""
 

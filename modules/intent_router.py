@@ -19,7 +19,7 @@ from .knowledge_retriever import KnowledgeRetriever, format_knowledge_cards
 class RouterResult:
     intent: Literal["stock", "career", "life", "chat", "fallback"]
     confidence: float
-    rule_matched: Optional[str]  # 命中的规则名
+    rule_matched: str | None  # 命中的规则名
     system_prompt: str  # 组装好的系统提示词
     knowledge_context: str  # 检索到的知识上下文
     matched_keywords: list = field(default_factory=list)
@@ -28,7 +28,7 @@ class RouterResult:
 class IntentRouter:
     """意图识别 + RAG 检索 + 系统提示组装 统一入口"""
 
-    def __init__(self, rules_path: Optional[str] = None, kb_api_url: Optional[str] = None, top_k: int = 5):
+    def __init__(self, rules_path: str | None = None, kb_api_url: str | None = None, top_k: int = 5):
         if rules_path is None:
             rules_path = str(Path(__file__).parent.parent / "rules" / "intent_rules.yaml")
 
@@ -87,7 +87,7 @@ class IntentRouter:
                 compiled[intent] = [re.compile(p, re.IGNORECASE) for p in config["patterns"]]
         return compiled
 
-    def _rule_match(self, message: str) -> Optional[tuple]:
+    def _rule_match(self, message: str) -> tuple | None:
         """规则匹配，返回 (intent, confidence, rule_name, matched_keywords)"""
         message_lower = message.lower()
         scored = []

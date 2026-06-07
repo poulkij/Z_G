@@ -93,7 +93,7 @@ class ReviewGenerator:
         except Exception as e:
             return {"success": False, "message": f"生成复盘报告失败: {str(e)}"}
     
-    def _analyze_stock_performance(self, ts_code: str, review_month: str) -> Optional[Dict[str, Any]]:
+    def _analyze_stock_performance(self, ts_code: str, review_month: str) -> Dict[str, Any] | None:
         """
         分析单只股票的月度表现
         
@@ -294,7 +294,7 @@ class ReviewGenerator:
     def _generate_review_summary(
         self,
         ts_code: str,
-        monthly_return: Optional[float],
+        monthly_return: float | None,
         max_drawdown: float,
         max_gain: float,
         buy_signals_count: int,
@@ -334,7 +334,7 @@ class ReviewGenerator:
     def _generate_lessons_learned(
         self,
         ts_code: str,
-        monthly_return: Optional[float],
+        monthly_return: float | None,
         max_drawdown: float,
         buy_signals_count: int,
         correct_buy_signals: int
@@ -369,7 +369,7 @@ class ReviewGenerator:
     def _generate_adjustment_suggestions(
         self,
         ts_code: str,
-        monthly_return: Optional[float],
+        monthly_return: float | None,
         max_drawdown: float,
         buy_signals_count: int,
         correct_buy_signals: int

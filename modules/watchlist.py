@@ -39,12 +39,12 @@ def remove_watch(ts_code: str) -> bool:
     return remove_watchlist_item(ts_code)
 
 
-def list_watch(tags: Optional[str] = None) -> list[dict]:
+def list_watch(tags: str | None = None) -> list[dict]:
     """列出自选股"""
     return get_watchlist(tags=tags)
 
 
-def scan_watchlist(tags: Optional[str] = None) -> dict[str, Any]:
+def scan_watchlist(tags: str | None = None) -> dict[str, Any]:
     """
     批量扫描自选股池
 
@@ -165,7 +165,7 @@ def scan_watchlist(tags: Optional[str] = None) -> dict[str, Any]:
     }
 
 
-def generate_daily_report(tags: Optional[str] = None) -> str:
+def generate_daily_report(tags: str | None = None) -> str:
     """
     生成每日观察报告（文本格式）
     """

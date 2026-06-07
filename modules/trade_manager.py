@@ -17,7 +17,7 @@ from .indicators import analyze_stock
 from .strategies import detect_all_strategies, StrategySignal
 
 
-def get_indicator_data(ts_code: str, trade_date: str) -> Optional[dict[str, Any]]:
+def get_indicator_data(ts_code: str, trade_date: str) -> dict[str, Any] | None:
     """
     获取指定日期股票的指标数据
 
@@ -45,7 +45,7 @@ def get_indicator_data(ts_code: str, trade_date: str) -> Optional[dict[str, Any]
     return None
 
 
-def get_stock_info(ts_code: str) -> Optional[dict[str, Any]]:
+def get_stock_info(ts_code: str) -> dict[str, Any] | None:
     """
     获取股票基本信息
     """
@@ -64,7 +64,7 @@ def get_stock_info(ts_code: str) -> Optional[dict[str, Any]]:
         return dict(row) if row else None
 
 
-def match_strategy(indicators: dict[str, Any]) -> Optional[StrategySignal]:
+def match_strategy(indicators: dict[str, Any]) -> StrategySignal | None:
     """
     根据指标匹配战法
 
@@ -129,7 +129,7 @@ class TradeManager:
         """
         return save_trade_record(trade_data)
 
-    def get_recent_trades(self, limit: int = 10, action: Optional[str] = None) -> list[dict]:
+    def get_recent_trades(self, limit: int = 10, action: str | None = None) -> list[dict]:
         """获取最近的交易记录"""
         return get_trade_records(action=action, limit=limit)
 
@@ -138,7 +138,7 @@ class TradeManager:
         return get_trade_records(ts_code=ts_code, limit=limit)
 
     def get_trades_by_period(
-        self, start_date: str, end_date: Optional[str] = None, ts_code: Optional[str] = None
+        self, start_date: str, end_date: str | None = None, ts_code: str | None = None
     ) -> list[dict]:
         """获取指定时间段的交易记录"""
         if end_date is None:
@@ -168,7 +168,7 @@ class TradeManager:
         return update_trade_record(trade_id, {"zg_review": zg_review})
 
     def get_summary(
-        self, ts_code: Optional[str] = None, start_date: Optional[str] = None, end_date: Optional[str] = None
+        self, ts_code: str | None = None, start_date: str | None = None, end_date: str | None = None
     ) -> dict:
         """获取交易汇总"""
         return get_trade_summary(ts_code=ts_code, start_date=start_date, end_date=end_date)
@@ -246,12 +246,12 @@ class TradeManager:
         return {"records": records[offset : offset + page_size], "total": total, "page": page, "page_size": page_size}
 
     def export_to_dict(
-        self, ts_code: Optional[str] = None, start_date: Optional[str] = None, end_date: Optional[str] = None
+        self, ts_code: str | None = None, start_date: str | None = None, end_date: str | None = None
     ) -> list[dict]:
         """导出交易记录为列表"""
         return get_trade_records(ts_code=ts_code, start_date=start_date, end_date=end_date, limit=10000)
 
-    def calculate_pnl(self, ts_code: Optional[str] = None) -> dict:
+    def calculate_pnl(self, ts_code: str | None = None) -> dict:
         """
         计算盈亏情况
 

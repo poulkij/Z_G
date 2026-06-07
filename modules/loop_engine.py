@@ -192,7 +192,7 @@ class ShaofuLoopEngine:
     - 支持回测场景（顺序遍历历史数据）
     """
 
-    def __init__(self, config: Optional[LoopConfig] = None):
+    def __init__(self, config: LoopConfig | None = None):
         """
         初始化引擎
 
@@ -205,7 +205,7 @@ class ShaofuLoopEngine:
     # 公开检查方法（供外部测试和调用）
     # ----------------------------------------------------------
 
-    def check_entry(self, klines: list[DailyData]) -> Optional[dict[str, Any]]:
+    def check_entry(self, klines: list[DailyData]) -> dict[str, Any] | None:
         """
         Step 3: 检查 B1 入场条件（公开接口）
 
@@ -345,7 +345,7 @@ class ShaofuLoopEngine:
     # 内部检查方法（供 run_stock 循环使用）
     # ----------------------------------------------------------
 
-    def _check_entry_internal(self, klines: list[DailyData], day_idx: int) -> Optional[dict[str, Any]]:
+    def _check_entry_internal(self, klines: list[DailyData], day_idx: int) -> dict[str, Any] | None:
         """
         内部入口检查（供 run_stock 逐日调用）
 
@@ -509,7 +509,7 @@ class ShaofuLoopEngine:
             ts_code = klines[0].ts_code if klines else ""
 
         completed_trades: list[LoopTrade] = []
-        current_trade: Optional[LoopTrade] = None
+        current_trade: LoopTrade | None = None
 
         # 从第 30 根开始，确保指标有足够数据
         for day_idx in range(30, len(klines)):
@@ -610,8 +610,8 @@ class ShaofuLoopEngine:
         ts_code: str,
         klines: list[DailyData],
         day_idx: int,
-        current_trade: Optional[LoopTrade] = None,
-    ) -> tuple[Optional[LoopTrade], Optional[LoopTrade]]:
+        current_trade: LoopTrade | None = None,
+    ) -> tuple[LoopTrade | None, LoopTrade | None]:
         """
         处理单日数据（供外部精细控制调用）
 

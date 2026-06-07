@@ -446,7 +446,7 @@ def remove_watchlist_item(ts_code: str) -> bool:
         return cursor.rowcount > 0
 
 
-def get_watchlist(tags: Optional[str] = None) -> list[dict]:
+def get_watchlist(tags: str | None = None) -> list[dict]:
     """获取自选股列表"""
     with get_connection() as conn:
         cursor = conn.cursor()
@@ -507,10 +507,10 @@ def save_trade_record(record: dict[str, Any]) -> int:
 
 
 def get_trade_records(
-    ts_code: Optional[str] = None,
-    start_date: Optional[str] = None,
-    end_date: Optional[str] = None,
-    action: Optional[str] = None,
+    ts_code: str | None = None,
+    start_date: str | None = None,
+    end_date: str | None = None,
+    action: str | None = None,
     limit: int = 100,
 ) -> list[dict]:
     """查询交易记录"""
@@ -539,7 +539,7 @@ def get_trade_records(
         return [dict(row) for row in cursor.fetchall()]
 
 
-def get_trade_record_by_id(trade_id: int) -> Optional[dict]:
+def get_trade_record_by_id(trade_id: int) -> dict | None:
     """根据ID获取单条交易记录"""
     with get_connection() as conn:
         cursor = conn.cursor()
@@ -573,7 +573,7 @@ def delete_trade_record(trade_id: int) -> bool:
         return cursor.rowcount > 0
 
 
-def get_trade_summary(ts_code: Optional[str] = None, start_date: Optional[str] = None, end_date: Optional[str] = None) -> dict:
+def get_trade_summary(ts_code: str | None = None, start_date: str | None = None, end_date: str | None = None) -> dict:
     """获取交易汇总统计"""
     with get_connection() as conn:
         cursor = conn.cursor()

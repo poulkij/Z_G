@@ -24,7 +24,7 @@ class MiniMaxProvider(LLMProvider):
     DEFAULT_BASE_URL = "https://api.minimaxi.com/v1/chat/completions"
     DEFAULT_MODEL = "MiniMax-M2.7"
 
-    def __init__(self, api_key: Optional[str] = None, base_url: Optional[str] = None, model: Optional[str] = None):
+    def __init__(self, api_key: str | None = None, base_url: str | None = None, model: str | None = None):
         # 使用通用的环境变量名称
         self.api_key = api_key or os.getenv("LLM_API_KEY", "")
         self.base_url = base_url or os.getenv("LLM_BASE_URL", self.DEFAULT_BASE_URL)

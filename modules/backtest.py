@@ -30,8 +30,8 @@ class Trade:
     ts_code: str
     entry_date: str
     entry_price: float
-    exit_date: Optional[str] = None
-    exit_price: Optional[float] = None
+    exit_date: str | None = None
+    exit_price: float | None = None
     pnl: float = 0.0
     pnl_pct: float = 0.0
     hold_days: int = 0
@@ -112,7 +112,7 @@ def backtest_signals(
         signal_map[sig.trade_date] = sig
 
     # 当前持仓
-    current_trade: Optional[Trade] = None
+    current_trade: Trade | None = None
     entry_high: float = 0.0
 
     # 按日期升序遍历 K 线（确保每天都检查止损/止盈）
@@ -420,7 +420,7 @@ def backtest_multi_strategy(
         signal_map.setdefault(sig.trade_date, []).append(sig)
 
     cash = initial_capital
-    position: Optional[Position] = None
+    position: Position | None = None
 
     # 按日期升序遍历
     for k in klines:

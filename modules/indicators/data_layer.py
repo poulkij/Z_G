@@ -67,7 +67,7 @@ except ImportError:
 _indicator_memory_cache: dict[tuple[str, str], IndicatorResult] = {}
 
 
-def _load_indicator_cache(ts_code: str, trade_date: str) -> Optional[IndicatorResult]:
+def _load_indicator_cache(ts_code: str, trade_date: str) -> IndicatorResult | None:
     """
     从 indicator_cache 表加载指标结果
 
@@ -339,7 +339,7 @@ def get_kline_data(ts_code: str, days: int = 100) -> list[DailyData]:
     return data_list
 
 
-def get_realtime_data(ts_code: str) -> Optional[DailyData]:
+def get_realtime_data(ts_code: str) -> DailyData | None:
     """
     获取实时/最新行情数据
     需要外部传入实时数据，这里仅作为数据结构定义

@@ -79,8 +79,8 @@ class DiagnosisReport:
     sandglass_is_perfect: bool = False
 
     # 止损/止盈建议
-    stop_loss: Optional[float] = None
-    target_price: Optional[float] = None
+    stop_loss: float | None = None
+    target_price: float | None = None
 
     # 综合建议
     recommendation: str = ""
@@ -187,7 +187,7 @@ def diagnose_stock(ts_code: str, days: int = 100) -> DiagnosisReport:
     )
 
 
-def get_stock_info_db(ts_code: str) -> Optional[dict[str, Any]]:
+def get_stock_info_db(ts_code: str) -> dict[str, Any] | None:
     """获取股票基本信息（兼容直接运行）"""
     from .database import get_connection
 
@@ -294,9 +294,9 @@ def _make_recommendation(
     exit_signals: list[dict],
     buy_signals: list[dict],
     kirin: dict[str, Any],
-    centipede: Optional[dict[str, Any]] = None,
-    bull_rope: Optional[dict[str, Any]] = None,
-    sandglass: Optional[dict[str, Any]] = None,
+    centipede: dict[str, Any] | None = None,
+    bull_rope: dict[str, Any] | None = None,
+    sandglass: dict[str, Any] | None = None,
 ) -> tuple:
     """生成综合建议和风险等级"""
     # 蜈蚣图：直接排除

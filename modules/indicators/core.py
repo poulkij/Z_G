@@ -151,7 +151,7 @@ class IndicatorResult:
 
     # 卖出评分
     sell_score: int = 0  # 0-5分
-    sell_items: Optional[dict[str, bool]] = None  # 5项明细 {项目名: 是否通过}
+    sell_items: dict[str, bool] | None = None  # 5项明细 {项目名: 是否通过}
 
     # 交易信号
     signal: TradeSignal = TradeSignal.WATCH
@@ -199,7 +199,7 @@ class IndicatorResult:
     is_sb1_detailed: bool = False  # 超级B1（独立检测）
 
     # 关键K检测
-    key_k_list: Optional[list[dict]] = None  # 关键K列表，每根含日期/类型/实体%/量比
+    key_k_list: list[dict] | None = None  # 关键K列表，每根含日期/类型/实体%/量比
 
     # 暴力K检测
     is_violence_k: bool = False  # 最新这天是否暴力K
