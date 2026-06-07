@@ -15,8 +15,8 @@ from typing import Optional, Any
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
-from modules.database import get_connection
-from modules.improvement_logger import ImprovementLogger
+from modules.database import get_connection  # noqa: E402
+from modules.improvement_logger import ImprovementLogger  # noqa: E402
 
 
 class ReviewGenerator:

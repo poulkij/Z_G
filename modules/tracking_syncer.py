@@ -16,10 +16,10 @@ import pandas as pd
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
-from modules.database import get_connection
-from modules.improvement_logger import ImprovementLogger
-from modules.tushare_client import TushareClient
-from modules.indicators.data_layer import analyze_stock
+from modules.database import get_connection  # noqa: E402
+from modules.improvement_logger import ImprovementLogger  # noqa: E402
+from modules.tushare_client import TushareClient  # noqa: E402
+from modules.indicators.data_layer import analyze_stock  # noqa: E402
 
 
 class TrackingSyncer:

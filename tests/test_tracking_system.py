@@ -16,10 +16,10 @@ from datetime import datetime, timedelta
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
-from modules.tracking_manager import TrackingManager
-from modules.tracking_syncer import TrackingSyncer
-from modules.review_generator import ReviewGenerator
-from modules.harness_updater import HarnessUpdater
+from modules.tracking_manager import TrackingManager  # noqa: E402
+from modules.tracking_syncer import TrackingSyncer  # noqa: E402
+from modules.review_generator import ReviewGenerator  # noqa: E402
+from modules.harness_updater import HarnessUpdater  # noqa: E402
 
 
 class TestTrackingManager:
