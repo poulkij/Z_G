@@ -9,7 +9,7 @@ import os
 import sys
 from pathlib import Path
 from datetime import datetime, timedelta
-from typing import Optional, List, Dict, Any
+from typing import Optional, Any
 
 # 添加项目根目录到 Python 路径
 project_root = Path(__file__).parent.parent
@@ -26,7 +26,7 @@ class ReviewGenerator:
         """初始化复盘报告生成器"""
         self.logger = ImprovementLogger()
 
-    def generate_monthly_review(self, review_month: str) -> Dict[str, Any]:
+    def generate_monthly_review(self, review_month: str) -> dict[str, Any]:
         """
         生成月度复盘报告
 
@@ -92,7 +92,7 @@ class ReviewGenerator:
         except Exception as e:
             return {"success": False, "message": f"生成复盘报告失败: {str(e)}"}
 
-    def _analyze_stock_performance(self, ts_code: str, review_month: str) -> Dict[str, Any] | None:
+    def _analyze_stock_performance(self, ts_code: str, review_month: str) -> dict[str, Any] | None:
         """
         分析单只股票的月度表现
 
@@ -232,7 +232,7 @@ class ReviewGenerator:
             print(f"分析 {ts_code} 失败: {e}")
             return None
 
-    def _analyze_strategy_performance(self, review_month: str) -> List[Dict[str, Any]]:
+    def _analyze_strategy_performance(self, review_month: str) -> list[Dict[str, Any]]:
         """
         分析策略表现
 
@@ -407,7 +407,7 @@ class ReviewGenerator:
 
         return "；".join(suggestions)
 
-    def save_review_to_database(self, review_data: Dict[str, Any]) -> bool:
+    def save_review_to_database(self, review_data: dict[str, Any]) -> bool:
         """
         保存复盘结果到数据库
 
@@ -460,7 +460,7 @@ class ReviewGenerator:
             print(f"保存复盘数据失败: {e}")
             return False
 
-    def save_strategy_performance(self, strategy_data: Dict[str, Any]) -> bool:
+    def save_strategy_performance(self, strategy_data: dict[str, Any]) -> bool:
         """
         保存策略表现到数据库
 
@@ -509,7 +509,7 @@ class ReviewGenerator:
             print(f"保存策略表现失败: {e}")
             return False
 
-    def get_historical_reviews(self, limit: int = 12) -> List[Dict[str, Any]]:
+    def get_historical_reviews(self, limit: int = 12) -> list[Dict[str, Any]]:
         """
         获取历史复盘记录
 

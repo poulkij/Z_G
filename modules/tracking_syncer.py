@@ -9,7 +9,7 @@ import os
 import sys
 from pathlib import Path
 from datetime import datetime, timedelta
-from typing import Optional, List, Dict, Any
+from typing import Optional, Any
 import pandas as pd
 
 # 添加项目根目录到 Python 路径
@@ -30,7 +30,7 @@ class TrackingSyncer:
         self.client = TushareClient()
         self.logger = ImprovementLogger()
 
-    def sync_daily(self, ts_code: str, days: int = 365) -> Dict[str, Any]:
+    def sync_daily(self, ts_code: str, days: int = 365) -> dict[str, Any]:
         """
         同步单只股票的每日数据
 
@@ -192,7 +192,7 @@ class TrackingSyncer:
         except Exception as e:
             return {"success": False, "message": f"同步失败: {str(e)}"}
 
-    def sync_all_active(self, days: int = 365) -> Dict[str, Any]:
+    def sync_all_active(self, days: int = 365) -> dict[str, Any]:
         """
         同步所有活跃跟踪股票
 
@@ -239,7 +239,7 @@ class TrackingSyncer:
         except Exception as e:
             return {"success": False, "message": f"批量同步失败: {str(e)}"}
 
-    def _get_indicators_for_date(self, ts_code: str, trade_date: str) -> Dict[str, Any]:
+    def _get_indicators_for_date(self, ts_code: str, trade_date: str) -> dict[str, Any]:
         """
         获取指定日期的指标数据（从 indicator_cache 表中读取）
 
@@ -287,8 +287,8 @@ class TrackingSyncer:
             return {}
 
     def _detect_signal(
-        self, indicator_data: Dict[str, Any], kline_data: Dict[str, Any] = None, prev_kline_data: Dict[str, Any] = None
-    ) -> Dict[str, Any]:
+        self, indicator_data: dict[str, Any], kline_data: dict[str, Any] = None, prev_kline_data: dict[str, Any] = None
+    ) -> dict[str, Any]:
         """
         检测交易信号（根据 Z 哥的策略）
 
@@ -426,7 +426,7 @@ class TrackingSyncer:
             print(f"检测信号失败: {e}")
             return {"signal_type": "NONE", "signal_score": 0, "signal_reason": ""}
 
-    def _detect_patterns(self, indicator_data: Dict[str, Any]) -> Dict[str, Any]:
+    def _detect_patterns(self, indicator_data: dict[str, Any]) -> dict[str, Any]:
         """
         检测形态
 
@@ -442,7 +442,7 @@ class TrackingSyncer:
         except Exception:
             return {"is_brick_red": 0, "is_brick_green": 0, "brick_count": 0, "is_n_structure": 0, "is_double_gun": 0}
 
-    def _detect_stage(self, indicator_data: Dict[str, Any]) -> Dict[str, Any]:
+    def _detect_stage(self, indicator_data: dict[str, Any]) -> dict[str, Any]:
         """
         检测主力阶段
 

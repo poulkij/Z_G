@@ -9,7 +9,7 @@ import os
 import sys
 from pathlib import Path
 from datetime import datetime, timedelta
-from typing import Optional, List, Dict, Any
+from typing import Optional, Any
 
 # 添加项目根目录到 Python 路径
 project_root = Path(__file__).parent.parent
@@ -26,7 +26,7 @@ class TrackingManager:
         pass
 
     def add_stock(
-        self, ts_code: str, name: str = None, reason: str = None, strategy_tags: List[str] = None, notes: str = None
+        self, ts_code: str, name: str = None, reason: str = None, strategy_tags: list[str] = None, notes: str = None
     ) -> bool:
         """
         添加股票到跟踪池
@@ -120,7 +120,7 @@ class TrackingManager:
             print(f"移除股票失败: {e}")
             return False
 
-    def list_stocks(self, status: str = "active", strategy_tag: str = None) -> List[Dict[str, Any]]:
+    def list_stocks(self, status: str = "active", strategy_tag: str = None) -> list[Dict[str, Any]]:
         """
         列出跟踪池中的股票
 
@@ -155,7 +155,7 @@ class TrackingManager:
             print(f"查询跟踪池失败: {e}")
             return []
 
-    def get_stock_info(self, ts_code: str) -> Dict[str, Any] | None:
+    def get_stock_info(self, ts_code: str) -> dict[str, Any] | None:
         """
         获取股票的跟踪信息
 
@@ -229,7 +229,7 @@ class TrackingManager:
             print(f"更新股票状态失败: {e}")
             return False
 
-    def get_tracking_stats(self) -> Dict[str, Any]:
+    def get_tracking_stats(self) -> dict[str, Any]:
         """
         获取跟踪池统计信息
 
@@ -271,7 +271,7 @@ class TrackingManager:
             print(f"获取统计信息失败: {e}")
             return {}
 
-    def get_strategy_distribution(self) -> Dict[str, int]:
+    def get_strategy_distribution(self) -> dict[str, int]:
         """
         获取策略分布统计
 

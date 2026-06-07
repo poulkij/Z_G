@@ -10,7 +10,7 @@ import sys
 import json
 from pathlib import Path
 from datetime import datetime
-from typing import Optional, Dict, Any
+from typing import Optional, Any
 
 # 添加项目根目录到 Python 路径
 project_root = Path(__file__).parent.parent
@@ -39,7 +39,7 @@ class ImprovementLogger:
         self.log_file = self.log_dir / "improvement_log.jsonl"
 
     def log(
-        self, action: str, category: str, details: Dict[str, Any], status: str = "success", message: str = ""
+        self, action: str, category: str, details: dict[str, Any], status: str = "success", message: str = ""
     ) -> bool:
         """
         记录日志
@@ -81,7 +81,7 @@ class ImprovementLogger:
         signal_type: str,
         signal_score: float,
         signal_reason: str,
-        indicator_data: Dict[str, Any],
+        indicator_data: dict[str, Any],
     ) -> bool:
         """
         记录信号检测日志
@@ -187,7 +187,7 @@ class ImprovementLogger:
         before_value: float,
         after_value: float,
         improvement: float,
-        details: Dict[str, Any],
+        details: dict[str, Any],
     ) -> bool:
         """
         记录优化日志
@@ -265,7 +265,7 @@ class ImprovementLogger:
         filtered_logs = [log for log in logs if log.get("category") == category]
         return filtered_logs[-limit:]
 
-    def get_improvement_summary(self) -> Dict[str, Any]:
+    def get_improvement_summary(self) -> dict[str, Any]:
         """
         获取改进摘要
 

@@ -10,7 +10,7 @@ import sys
 import json
 from pathlib import Path
 from datetime import datetime, timedelta
-from typing import Optional, List, Dict, Any
+from typing import Optional, Any
 from collections import defaultdict
 
 # 添加项目根目录到 Python 路径
@@ -32,7 +32,7 @@ class LogAnalyzer:
         """
         self.logger = ImprovementLogger(log_dir)
 
-    def analyze_signal_distribution(self, days: int = 30) -> Dict[str, Any]:
+    def analyze_signal_distribution(self, days: int = 30) -> dict[str, Any]:
         """
         分析信号分布
 
@@ -90,7 +90,7 @@ class LogAnalyzer:
         except Exception as e:
             return {"success": False, "message": f"分析信号分布失败: {str(e)}"}
 
-    def analyze_signal_accuracy(self, days: int = 30) -> Dict[str, Any]:
+    def analyze_signal_accuracy(self, days: int = 30) -> dict[str, Any]:
         """
         分析信号准确率
 
@@ -139,7 +139,7 @@ class LogAnalyzer:
         except Exception as e:
             return {"success": False, "message": f"分析信号准确率失败: {str(e)}"}
 
-    def analyze_improvement_trends(self, months: int = 6) -> Dict[str, Any]:
+    def analyze_improvement_trends(self, months: int = 6) -> dict[str, Any]:
         """
         分析改进趋势
 
@@ -192,7 +192,7 @@ class LogAnalyzer:
         except Exception as e:
             return {"success": False, "message": f"分析改进趋势失败: {str(e)}"}
 
-    def generate_optimization_report(self) -> Dict[str, Any]:
+    def generate_optimization_report(self) -> dict[str, Any]:
         """
         生成优化报告
 
@@ -259,7 +259,7 @@ class LogAnalyzer:
         except Exception as e:
             return {"success": False, "message": f"生成优化报告失败: {str(e)}"}
 
-    def print_report(self, report: Dict[str, Any]) -> None:
+    def print_report(self, report: dict[str, Any]) -> None:
         """
         打印优化报告
 
