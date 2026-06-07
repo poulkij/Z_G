@@ -70,7 +70,7 @@ class TestTrackingManager:
             ts_code="600519.SH", name="贵州茅台", reason="B1买点出现", strategy_tags=["B1"], notes="测试股票"
         )
 
-        assert result == True, "添加股票失败"
+        assert result, "添加股票失败"
 
         # 验证股票已添加
         stock = self.manager.get_stock_info("600519.SH")
@@ -90,7 +90,7 @@ class TestTrackingManager:
 
         # 移除股票
         result = self.manager.remove_stock("600519.SH", "测试完成")
-        assert result == True, "移除股票失败"
+        assert result, "移除股票失败"
 
         # 验证股票已移除
         stock = self.manager.get_stock_info("600519.SH")
@@ -190,7 +190,7 @@ class TestReviewGenerator:
         # 生成复盘报告
         result = self.generator.generate_monthly_review("202605")
 
-        assert result.get("success") == True, f"生成复盘报告失败: {result.get('message')}"
+        assert result.get("success"), f"生成复盘报告失败: {result.get('message')}"
         assert result.get("total_stocks", 0) > 0, "复盘股票数量为 0"
 
         # 检查复盘数据
@@ -238,7 +238,7 @@ class TestHarnessUpdater:
         # 分析策略表现
         result = self.updater.analyze_strategy_performance("202605")
 
-        assert result.get("success") == True, f"分析策略表现失败: {result.get('message')}"
+        assert result.get("success"), f"分析策略表现失败: {result.get('message')}"
         assert result.get("review_month") == "202605", "复盘月份不正确"
 
         # 检查策略统计
@@ -257,10 +257,10 @@ class TestHarnessUpdater:
         # 生成更新建议
         result = self.updater.generate_guardrails_update(analysis_result)
 
-        assert result.get("success") == True, f"生成更新建议失败: {result.get('message')}"
+        assert result.get("success"), f"生成更新建议失败: {result.get('message')}"
 
         # 检查更新建议
-        updates = result.get("updates", [])
+        result.get("updates", [])
         total_updates = result.get("total_updates", 0)
 
         print(f"  ✅ 生成 Guardrails 更新建议成功，共 {total_updates} 条建议")
