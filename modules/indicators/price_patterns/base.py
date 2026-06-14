@@ -1,7 +1,6 @@
 from ..core import DailyData, calculate_ma, calculate_ema
 
 
-
 def calculate_zg_white(klines: list[DailyData]) -> float:
     """
     计算 Z哥白线 = EMA(EMA(C,10),10)

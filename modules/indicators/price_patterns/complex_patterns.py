@@ -36,7 +36,6 @@ def detect_divergence(klines: list[DailyData], dif_list: list[float]) -> dict:
     if window_end > window_start:
         max_close = max(closes[window_start:window_end])
 
-
         # 对应窗口的DIF最大值
         dif_window_start = max(0, window_start)
         dif_window_end = min(len(dif_list), window_end)
@@ -53,7 +52,6 @@ def detect_divergence(klines: list[DailyData], dif_list: list[float]) -> dict:
     # ====== 底背离检测 ======
     if window_end > window_start:
         min_close = min(closes[window_start:window_end])
-
 
         dif_window_start = max(0, window_start)
         dif_window_end = min(len(dif_list), window_end)

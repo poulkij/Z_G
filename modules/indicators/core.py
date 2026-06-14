@@ -258,9 +258,6 @@ class IndicatorResult:
     market_dir: str = "NEUTRAL"
 
 
-
-
-
 def calculate_ma(prices: list[float], period: int) -> float:
     """计算简单移动平均"""
     if len(prices) < period:
