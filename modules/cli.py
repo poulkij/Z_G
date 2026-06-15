@@ -681,8 +681,9 @@ def main():
     p_track.add_argument("--json", action="store_true", help="JSON输出")
 
     # ── backtest（shaofu / multi / portfolio）──
+    # dest 字段名必须与 cli_commands.cmd_backtest 里 getattr(args, "backtest_sub", ...) 一致
     p_bt = subparsers.add_parser("backtest", help="策略回测")
-    p_bt_sub = p_bt.add_subparsers(dest="bt_action", required=True)
+    p_bt_sub = p_bt.add_subparsers(dest="backtest_sub", required=True)
 
     p_bt_shaofu = p_bt_sub.add_parser("shaofu", help="少妇战法六步回测")
     p_bt_shaofu.add_argument("ts_code", help="股票代码")
@@ -696,16 +697,31 @@ def main():
     p_bt_multi.add_argument("--json", action="store_true", help="JSON输出")
 
     p_bt_portfolio = p_bt_sub.add_parser("portfolio", help="多股票组合回测")
-    p_bt_portfolio.add_argument("ts_codes", help="股票代码，逗号分隔")
+    # 字段名 codes 与 cli_commands.cmd_backtest 中 getattr(args, "codes", ...) 对齐
+    p_bt_portfolio.add_argument("codes", help="股票代码，逗号分隔")
     p_bt_portfolio.add_argument("--days", type=int, default=120, help="回测天数")
     p_bt_portfolio.add_argument("--mode", choices=["shaofu", "multi"], default="shaofu", help="回测模式")
     p_bt_portfolio.add_argument("--json", action="store_true", help="JSON输出")
 
     # ── trade（add / list / review / stats）──
+    # 改为 subparser 模式：dest="trade_sub" 与 cli_commands.cmd_trade 里 getattr(args, "trade_sub", ...) 对齐
     p_trade = subparsers.add_parser("trade", help="交易记录管理")
-    p_trade.add_argument("trade_action", choices=["add", "list", "review", "stats"], help="操作")
-    p_trade.add_argument("description", nargs="?", help="交易描述（add 必填）")
-    p_trade.add_argument("--json", action="store_true", help="JSON输出")
+    p_trade_sub = p_trade.add_subparsers(dest="trade_sub", required=True)
+
+    p_trade_add = p_trade_sub.add_parser("add", help="添加交易记录")
+    # 字段名 text 与 cli_commands.cmd_trade 中 getattr(args, "text", ...) 对齐
+    p_trade_add.add_argument("text", help="交易描述（口语化）")
+    p_trade_add.add_argument("--json", action="store_true", help="JSON输出")
+
+    p_trade_list = p_trade_sub.add_parser("list", help="列出最近交易记录")
+    p_trade_list.add_argument("--limit", type=int, default=20, help="列出条数")
+    p_trade_list.add_argument("--json", action="store_true", help="JSON输出")
+
+    p_trade_review = p_trade_sub.add_parser("review", help="构建复盘上下文（给 LLM）")
+    p_trade_review.add_argument("--json", action="store_true", help="JSON输出")
+
+    p_trade_stats = p_trade_sub.add_parser("stats", help="交易统计摘要")
+    p_trade_stats.add_argument("--json", action="store_true", help="JSON输出")
 
     # ── daily ──
     p_daily = subparsers.add_parser("daily", help="每日五步工作流")
