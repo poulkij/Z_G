@@ -26,7 +26,7 @@ _skill_mtime: float = 0
 
 # ── 知识库路径 ──
 
-_KNOWLEDGE_DIR = Path(__file__).parent.parent / "knowledge"
+_KNOWLEDGE_DIR = Path(__file__).parent.parent / "core" / "knowledge"
 _SKILL_PATH = Path(__file__).parent.parent / "SKILL.md"
 
 

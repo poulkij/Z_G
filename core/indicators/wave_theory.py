@@ -1,7 +1,7 @@
 """
 三波理论识别模块
 
-来源：knowledge/indicators.md
+来源：core/knowledge/indicators.md
 核心：建仓波 → 拉升波 → 冲刺波
 """
 

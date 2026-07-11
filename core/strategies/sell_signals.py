@@ -315,7 +315,7 @@ def detect_buy_exhaustion(klines: list[DailyData], index: int) -> StrategySignal
     """
     检测买盘枯竭信号（上涨动能耗尽预警）
 
-    来源：knowledge/key-candles.md
+    来源：core/knowledge/key-candles.md
 
     触发条件（在上涨趋势中）：
     1. 上涨趋势：index-10 到 index-3 期间有明显上涨（>5%）
@@ -376,7 +376,7 @@ def detect_green_fat_red_thin(klines: list[DailyData], index: int) -> StrategySi
     """
     检测绿肥红瘦出货信号（主力出货）
 
-    来源：knowledge/exit-strategies.md、knowledge/market-macro.md
+    来源：core/knowledge/exit-strategies.md、core/knowledge/market-macro.md
 
     触发条件：
     近5天内阴线平均成交量 > 阳线平均成交量的1.5倍
@@ -435,7 +435,7 @@ def detect_staircase_distribution(klines: list[DailyData], index: int) -> Strate
     """
     检测阶梯放量下跌信号（阶梯式出货）
 
-    来源：knowledge/exit-strategies.md
+    来源：core/knowledge/exit-strategies.md
 
     触发条件：
     连续3+天每天量增价跌
@@ -479,7 +479,7 @@ def detect_top_pinwheel(klines: list[DailyData], index: int) -> StrategySignal |
     """
     检测顶部大风车信号（S1 具体形态）
 
-    来源：knowledge/exit-strategies.md
+    来源：core/knowledge/exit-strategies.md
 
     触发条件：
     1. 在高位（近20天最高价附近，距高点<5%）

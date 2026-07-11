@@ -1,7 +1,7 @@
 """
 麒麟会四阶段识别模块（铁蝴蝶 / 学院派铁蝴蝶）
 
-来源：knowledge/indicators.md 3.9 / knowledge/iron-butterfly.md
+来源：core/knowledge/indicators.md 3.9 / core/knowledge/iron-butterfly.md
 核心：吸 → 拉 → 派 → 落 四阶段状态机
 """
 

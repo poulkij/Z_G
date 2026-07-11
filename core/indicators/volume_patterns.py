@@ -511,7 +511,7 @@ def detect_volume_attack(klines: list[DailyData]) -> dict:
     """
     量比攻击信号检测（单日强势信号）
 
-    来源：knowledge/three-best-principles.md
+    来源：core/knowledge/three-best-principles.md
 
     触发条件：
     - 量比 > 3（当日成交量 / 5日平均成交量）
