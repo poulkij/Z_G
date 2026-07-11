@@ -14,6 +14,7 @@ from .engine import (
     _calc_stats,
 )
 from .param_tuner import tune_params, TuneResult
+from .historical_screener import screen_historical, ScreenResult
 
 __all__ = [
     "Trade",
@@ -25,4 +26,6 @@ __all__ = [
     "backtest_portfolio",
     "tune_params",
     "TuneResult",
+    "screen_historical",
+    "ScreenResult",
 ]
