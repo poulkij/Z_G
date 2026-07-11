@@ -148,6 +148,9 @@ def detect_b1_today(klines: list[DailyData]) -> dict:
     """
     B1建仓波检测（只检查最新这天）
     标准：J<13, 振幅<4%, 涨幅-2%~+1.8%, 缩量
+
+    NOTE: strategies/base_strategies.py::detect_b1 是升级版（MDC验证+麒麟上下文+自优化参数）。
+    本函数用于 indicators 管线的原始快照。修改阈值时两边需同步评估。
     """
     result: dict[str, Any] = {
         "is_b1": False,
@@ -188,6 +191,9 @@ def detect_b2_today(klines: list[DailyData]) -> dict:
     """
     B2突破检测（只检查最新这天）
     标准：B1后5天内, 涨幅>=4%, 放量20%+, J<55
+
+    NOTE: strategies/base_strategies.py::detect_b2 是升级版（MDC验证+麒麟上下文+自优化参数）。
+    本函数用于 indicators 管线的原始快照。修改阈值时两边需同步评估。
     """
     result: dict[str, Any] = {
         "is_b2": False,

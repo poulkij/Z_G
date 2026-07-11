@@ -1,187 +1,29 @@
 """
-技术指标计算模块
+向后兼容 shim — 从 core.indicators re-export
 
-将原 indicators.py 拆分为4个子模块后，通过 __init__.py 保持向后兼容。
+实际实现已迁移至 core/indicators/，本包仅保留以兼容
+现有的 `from modules.indicators import ...` 调用。
+
+子模块访问（如 `from modules.indicators.core import ...`、
+`from modules.indicators.data_layer import ...`）通过同目录下的
+core.py / data_layer.py / kirin_detector.py / wave_theory.py /
+volume_patterns.py 以及 price_patterns/__init__.py 薄壳文件转发。
 """
 
-from .core import (
-    TradeSignal,
+from core.indicators import *  # noqa: F401, F403
+from core.indicators import __all__  # noqa: F401  保持 __all__ 可被外部引用
+
+# 关键名称显式 re-export（其他代码直接 import 这些名字，显式声明以提升可读性）
+from core.indicators import (  # noqa: F401
     DailyData,
     IndicatorResult,
-    DB_PATH,
-    DATA_MODE,
-    get_data_mode,
-    get_db_connection,
+    TradeSignal,
+    analyze_stock,
+    get_kline_data,
     calculate_ma,
-    calculate_ema,
-    calculate_sma_td,
-    calculate_slope,
     calculate_kdj,
-    precompute_kdj_sequence,
-    precompute_bbi_sequence,
-    precompute_macd_sequence,
     calculate_macd,
-    calculate_bbi,
     calculate_rsi,
-    calculate_rsi_multi,
-    detect_macd_trap,
-    calculate_wr,
-    calculate_wr_multi,
     calculate_bollinger,
     calculate_vol_ratio,
 )
-
-from .price_patterns import (
-    calculate_zg_white,
-    calculate_dg_yellow,
-    detect_double_line_cross,
-    calculate_rsl,
-    detect_needle_20,
-    detect_needle_30,
-    detect_double_gun,
-    detect_sb1_detailed,
-    calculate_dmi,
-    calculate_brick_value,
-    calculate_brick_history,
-    detect_brick_trend,
-    detect_fanbao,
-    detect_volume_pattern,
-    detect_didi,
-    calculate_zuchong_target,
-    detect_zaihou_chongjian,
-    detect_yueyueyushi,
-    detect_key_candle,
-    detect_key_candle_coverage,
-    detect_abc_stages,
-    detect_b1_today,
-    detect_b2_today,
-    detect_key_k,
-    detect_violence_k,
-    check_two_30_rule,
-    detect_nana_chart,
-    detect_golden_bowl,
-    detect_bull_rope,
-    detect_breathing_structure,
-    detect_sb1,
-    detect_b3,
-    detect_four_brick_system,
-    detect_divergence,
-    detect_macd_signals,
-    detect_centipede_pattern,
-    calculate_sandglass_score,
-)
-
-from .volume_patterns import (
-    detect_volume_anomaly,
-    detect_chuhuo_wushi,
-    calculate_sell_score,
-    detect_trade_signal,
-    detect_volume_ratio_strategy,
-    detect_volume_attack,
-)
-
-from .wave_theory import detect_three_waves, classify_wave_for_b1
-from .kirin_detector import detect_kirin_stage
-
-from .data_layer import (
-    _indicator_memory_cache,  # noqa: F401  re-export
-    _load_indicator_cache,  # noqa: F401  re-export
-    _save_indicator_cache,  # noqa: F401  re-export
-    clear_indicator_memory_cache,
-    get_kline_data,
-    get_realtime_data,
-    analyze_stock,
-    visualize_brick_chart,
-    format_result,
-    main,
-)
-
-__all__ = [
-    # types
-    "TradeSignal",
-    "DailyData",
-    "IndicatorResult",
-    # env
-    "DB_PATH",
-    "DATA_MODE",
-    "get_data_mode",
-    # db
-    "get_db_connection",
-    # core math
-    "calculate_ma",
-    "calculate_ema",
-    "calculate_sma_td",
-    "calculate_slope",
-    # core indicators
-    "calculate_kdj",
-    "precompute_kdj_sequence",
-    "precompute_bbi_sequence",
-    "precompute_macd_sequence",
-    "calculate_macd",
-    "calculate_bbi",
-    "calculate_rsi",
-    "calculate_rsi_multi",
-    "calculate_wr",
-    "calculate_wr_multi",
-    "calculate_bollinger",
-    "calculate_vol_ratio",
-    # price patterns
-    "calculate_zg_white",
-    "calculate_dg_yellow",
-    "detect_double_line_cross",
-    "calculate_rsl",
-    "detect_needle_20",
-    "detect_needle_30",
-    "detect_volume_anomaly",
-    "detect_double_gun",
-    "detect_sb1_detailed",
-    "calculate_dmi",
-    "calculate_brick_value",
-    "calculate_brick_history",
-    "detect_brick_trend",
-    "detect_fanbao",
-    "detect_volume_pattern",
-    "detect_b1_today",
-    "detect_b2_today",
-    "detect_key_k",
-    "detect_violence_k",
-    "check_two_30_rule",
-    "detect_nana_chart",
-    "detect_golden_bowl",
-    "detect_bull_rope",
-    "detect_breathing_structure",
-    "detect_sb1",
-    "detect_b3",
-    "detect_four_brick_system",
-    "detect_divergence",
-    "detect_macd_signals",
-    "detect_centipede_pattern",
-    "calculate_sandglass_score",
-    "detect_macd_trap",
-    "detect_didi",
-    "calculate_zuchong_target",
-    "detect_zaihou_chongjian",
-    "detect_yueyueyushi",
-    "detect_key_candle",
-    "detect_key_candle_coverage",
-    "detect_abc_stages",
-    "detect_chuhuo_wushi",
-    # wave theory
-    "detect_three_waves",
-    "classify_wave_for_b1",
-    # kirin detector
-    "detect_kirin_stage",
-    # volume patterns
-    "calculate_sell_score",
-    "detect_trade_signal",
-    "detect_volume_ratio_strategy",
-    "detect_volume_attack",
-    # data layer
-    "clear_indicator_memory_cache",
-    "get_kline_data",
-    "get_realtime_data",
-    "analyze_stock",
-    "visualize_brick_chart",
-    "format_result",
-    "main",
-]

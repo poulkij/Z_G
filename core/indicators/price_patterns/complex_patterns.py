@@ -304,7 +304,7 @@ def detect_sb1_detailed(klines: list[DailyData]) -> dict:
     return result
 
 
-def detect_nana_chart(klines: list[DailyData]) -> dict:
+def detect_nana_peak_structure(klines: list[DailyData]) -> dict:
     """
     娜娜图检测：完美建仓形态
     条件：股价新高但阳线缩量，次高点阴线也缩量
@@ -402,7 +402,7 @@ def detect_breathing_structure(klines: list[DailyData]) -> dict:
     return result
 
 
-def detect_sb1(klines: list[DailyData]) -> dict:
+def detect_sb1_break_recover(klines: list[DailyData]) -> dict:
     """
     SB1假摔检测：B1后跌破前低再迅速收回
     条件：1)跌破前低 2)次日反包收回 3)收回放量
@@ -431,6 +431,9 @@ def detect_b3(klines: list[DailyData]) -> dict:
     """
     B3买点检测：B2后缩量回踩不破B2低点
     条件：1) 前面有B2(大涨>=4%) 2) 缩量小阳/十字星 3) 不破B2低点
+
+    NOTE: strategies/base_strategies.py::detect_b3 是升级版（正阳线限制+振幅+信号对象返回）。
+    本函数用于 indicators 管线的原始快照。修改阈值时两边需同步评估。
     """
     result = {"is_b3": False}
     if len(klines) < 15:
