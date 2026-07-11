@@ -1,6 +1,6 @@
 from typing import Optional
 from .core import StrategyType, StrategySignal, Priority, _ensure_daily_klines, _get_macd_dif
-from ..indicators import detect_four_brick_system, DailyData
+from core.indicators import detect_four_brick_system, DailyData
 
 
 def detect_s1(klines: list[DailyData], index: int, kirin_context: dict | None = None) -> StrategySignal | None:
@@ -61,7 +61,7 @@ def detect_s1(klines: list[DailyData], index: int, kirin_context: dict | None = 
     # 集成出货五式验证
     chuhuo_score = 0
     try:
-        from ..indicators import detect_chuhuo_wushi
+        from core.indicators import detect_chuhuo_wushi
 
         chuhuo = detect_chuhuo_wushi(klines[: index + 1])
         chuhuo_score = chuhuo.get("total_score", 0)
@@ -142,7 +142,7 @@ def detect_s2(klines: list[DailyData] | None, index: int, dif_list: list[float] 
 
         # 联动出货五式验证
         try:
-            from ..indicators import detect_chuhuo_wushi
+            from core.indicators import detect_chuhuo_wushi
 
             chuhuo = detect_chuhuo_wushi(klines[: index + 1])
             chuhuo_score = chuhuo.get("total_score", 0)
@@ -219,7 +219,7 @@ def detect_s3(klines: list[DailyData], index: int) -> StrategySignal | None:
 
     # 联动出货五式验证
     try:
-        from ..indicators import detect_chuhuo_wushi
+        from core.indicators import detect_chuhuo_wushi
 
         chuhuo = detect_chuhuo_wushi(klines[: index + 1])
         chuhuo_score = chuhuo.get("total_score", 0)

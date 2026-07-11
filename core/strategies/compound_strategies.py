@@ -1,5 +1,5 @@
 from typing import Optional
-from ..indicators import DailyData
+from core.indicators import DailyData
 from .core import StrategyType, StrategySignal, Priority, Action, _get_kdj, _ensure_daily_klines
 
 

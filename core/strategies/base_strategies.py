@@ -1,7 +1,6 @@
 from typing import Optional
-from ..indicators import DailyData
+from core.indicators import DailyData
 from .core import StrategyType, StrategySignal, Priority, Action, _get_kdj, _get_bbi, _ensure_daily_klines
-from modules.self_optimizer.param_registry import get_active_param
 
 
 def _safe_num(val, default=0):
@@ -12,6 +11,9 @@ def _safe_num(val, default=0):
 def detect_b1(klines: list[DailyData], index: int, kirin_context: dict | None = None) -> StrategySignal | None:
     """
     检测 B1 买点（已升级 MDC 多维验证 + 麒麟阶段背景）
+
+    NOTE: indicators/price_patterns/screener_helper.py::detect_b1_today 是简化版（原始快照，无MDC/Kirin）。
+    本函数是升级版，含 Green Brick veto / MDC / Kirin / 自优化参数。修改核心阈值时两边需同步评估。
 
     B1 核心条件：
     1. J < -10
@@ -27,6 +29,8 @@ def detect_b1(klines: list[DailyData], index: int, kirin_context: dict | None = 
     - RSI6 < 20 (极度超卖, +10%)
     - ADX 高位动能竭尽 (+10%)
     """
+    from modules.self_optimizer.param_registry import get_active_param
+
     if index < 10:
         return None
 
@@ -121,6 +125,9 @@ def detect_b2(klines: list[DailyData], index: int, kirin_context: dict | None = 
     """
     检测 B2 买点（已升级 MDC 多维验证 + 麒麟阶段背景）
 
+    NOTE: indicators/price_patterns/screener_helper.py::detect_b2_today 是简化版（原始快照，无MDC/Kirin）。
+    本函数是升级版，含 MDC / Kirin / 自优化参数。修改核心阈值时两边需同步评估。
+
     B2 条件（B1后的确认信号）：
     1. 前几日有B1（J<-10）
     2. 放量长阳（涨幅>=4%）
@@ -135,6 +142,8 @@ def detect_b2(klines: list[DailyData], index: int, kirin_context: dict | None = 
     - DMI 趋势金叉 (+10%)
     - 布林开口向上 (+10%)
     """
+    from modules.self_optimizer.param_registry import get_active_param
+
     if index < 15:
         return None
 
@@ -248,6 +257,9 @@ def detect_b3(klines: list[DailyData], index: int) -> StrategySignal | None:
     """
     检测 B3 中继买点
 
+    NOTE: indicators/price_patterns/complex_patterns.py::detect_b3 是简化版（量缩+破低检查+abs(pct)<3%）。
+    本函数是升级版（正阳线限制+振幅<7%+信号对象返回）。修改核心阈值时两边需同步评估。
+
     B3 条件：
     1. B2后出现
     2. 分歧转一致（小阳线）
@@ -304,6 +316,8 @@ def detect_sb1(klines: list[DailyData], index: int) -> StrategySignal | None:
     3. 继续缩量企稳
     4. J出现负值
     """
+    from modules.self_optimizer.param_registry import get_active_param
+
     if index < 10:
         return None
 
