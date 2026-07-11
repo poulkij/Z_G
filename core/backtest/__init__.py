@@ -1,8 +1,8 @@
 """
-向后兼容 shim — 从 core.backtest re-export
+回测包 — 引擎 + 参数调优 + 历史筛选
 """
 
-from core.backtest import (
+from .engine import (
     Trade,
     BacktestResult,
     PortfolioBacktestResult,
