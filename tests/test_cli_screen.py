@@ -36,7 +36,7 @@ EXPECTED_STRATEGIES = [
 @pytest.fixture
 def fake_screen_result():
     """构造一个 fake StockScore 列表供 mock 返回"""
-    from modules.screener import StockScore
+    from core.screener import StockScore
 
     return [
         StockScore(
@@ -114,7 +114,7 @@ def test_screen_parser_accepts_all_strategies(chinese_name, fake_screen_result, 
 
     with (
         patch.object(sys, "argv", test_args),
-        patch("modules.screener.screen_stocks", return_value=fake_screen_result) as mock_screen,
+        patch("core.screener.screen_stocks", return_value=fake_screen_result) as mock_screen,
     ):
         main()
 
@@ -146,8 +146,8 @@ def test_screen_calls_screen_stocks_not_self_loop(fake_screen_result, capsys):
 
     with (
         patch.object(sys, "argv", test_args),
-        patch("modules.screener.screen_stocks", return_value=fake_screen_result) as mock_screen,
-        patch("modules.screener.StockScore") as mock_bare_score,
+        patch("core.screener.screen_stocks", return_value=fake_screen_result) as mock_screen,
+        patch("core.screener.StockScore") as mock_bare_score,
     ):
         main()
 
@@ -168,7 +168,7 @@ def test_screen_limit_zero_means_full_market(fake_screen_result, capsys):
 
     with (
         patch.object(sys, "argv", test_args),
-        patch("modules.screener.screen_stocks", return_value=fake_screen_result) as mock_screen,
+        patch("core.screener.screen_stocks", return_value=fake_screen_result) as mock_screen,
     ):
         main()
 

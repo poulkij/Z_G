@@ -3,7 +3,7 @@ indicators.py 核心技术指标测试
 覆盖所有独立计算函数
 """
 
-from modules.indicators import (
+from core.indicators import (
     DailyData,
     IndicatorResult,
     TradeSignal,
@@ -34,7 +34,7 @@ from modules.indicators import (
     detect_b1_today,
     detect_b2_today,
     detect_breathing_structure,
-    detect_sb1,
+    detect_sb1_break_recover,
     detect_b3,
     detect_four_brick_system,
     calculate_sell_score,
@@ -554,7 +554,7 @@ class TestBreathingStructure:
 class TestSB1B3:
     def test_sb1_basic(self):
         klines = make_klines(n=10)
-        result = detect_sb1(klines)
+        result = detect_sb1_break_recover(klines)
         assert "is_sb1" in result
 
     def test_b3_basic(self):

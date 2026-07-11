@@ -9,9 +9,9 @@ from datetime import datetime, timedelta
 from typing import Optional, Any
 import pandas as pd
 
-from modules.database import get_connection
+from core.database import get_connection
 from modules.improvement_logger import ImprovementLogger
-from modules.indicators.data_layer import analyze_stock
+from core.indicators.data_layer import analyze_stock
 
 
 class TrackingSyncer:

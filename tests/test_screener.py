@@ -2,7 +2,7 @@
 screener.py 选股测试
 """
 
-from modules.screener import (
+from core.screener import (
     StockScore,
     MarketStatus,
     calculate_ma,

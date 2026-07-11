@@ -5,7 +5,7 @@ screener.py 选股测试（P3 指标接入扩展）
 import pytest
 from datetime import datetime, timedelta
 
-from modules.screener import (
+from core.screener import (
     score_b1_opportunity,
     score_volume_pattern,
 )
@@ -156,30 +156,30 @@ class TestP3ScreenerCriteriaRegistry:
 
     def test_bull_rope_registered(self):
         """牛绳条件已在注册表"""
-        from modules.screener import _CRITERIA_REGISTRY
+        from core.screener import _CRITERIA_REGISTRY
 
         assert "bull_rope" in _CRITERIA_REGISTRY
 
     def test_sandglass_perfect_registered(self):
         """沙漏完美条件已在注册表"""
-        from modules.screener import _CRITERIA_REGISTRY
+        from core.screener import _CRITERIA_REGISTRY
 
         assert "sandglass_perfect" in _CRITERIA_REGISTRY
 
     def test_volume_ratio_super_registered(self):
         """量比超级条件已在注册表"""
-        from modules.screener import _CRITERIA_REGISTRY
+        from core.screener import _CRITERIA_REGISTRY
 
         assert "volume_ratio_super" in _CRITERIA_REGISTRY
 
     def test_centipede_hard_filter_exists(self):
         """蜈蚣图硬过滤存在"""
-        from modules.screener import _check_centipede
+        from core.screener import _check_centipede
 
         assert callable(_check_centipede)
 
     def test_sandglass_min_filter_exists(self):
         """沙漏最低分过滤存在"""
-        from modules.screener import _check_sandglass_min
+        from core.screener import _check_sandglass_min
 
         assert callable(_check_sandglass_min)

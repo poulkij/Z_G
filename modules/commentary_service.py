@@ -347,7 +347,7 @@ def generate_commentary(analysis: dict[str, Any]) -> dict[str, Any]:
 
         # 记录 LLM 响应耗时
         try:
-            from modules.database import record_llm_response
+            from core.database import record_llm_response
 
             record_llm_response(
                 ts_code=ts_code,
@@ -365,7 +365,7 @@ def generate_commentary(analysis: dict[str, Any]) -> dict[str, Any]:
     except ValueError as e:
         elapsed_ms = (time.perf_counter() - start_ts) * 1000.0
         try:
-            from modules.database import record_llm_response
+            from core.database import record_llm_response
 
             record_llm_response(
                 ts_code=ts_code,
@@ -388,7 +388,7 @@ def generate_commentary(analysis: dict[str, Any]) -> dict[str, Any]:
     except Exception as e:
         elapsed_ms = (time.perf_counter() - start_ts) * 1000.0
         try:
-            from modules.database import record_llm_response
+            from core.database import record_llm_response
 
             record_llm_response(
                 ts_code=ts_code,

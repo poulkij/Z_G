@@ -185,7 +185,7 @@ def cmd_backtest(args) -> None:
         if not ts_code:
             _error("请指定股票代码，如: backtest multi 600487.SH")
 
-        from .backtest import backtest_multi_strategy
+        from core.backtest import backtest_multi_strategy
 
         # --strategy 参数暂不传给底层（底层用全部策略融合）
         # 未来可扩展为按策略过滤
@@ -517,7 +517,7 @@ def _daily_step_watchlist(report: dict) -> list:
 def _daily_step_screener(report: dict) -> None:
     """Step 2: 全市场 B1 选股，取前 10"""
     try:
-        from .screener import screen_stocks
+        from core.screener import screen_stocks
 
         top_picks_raw = screen_stocks(criteria="b1", max_stocks=20)
         top_picks = []

@@ -61,11 +61,11 @@ def _analyze_core(ts_code: str, days: int = 120) -> dict:
     核心分析逻辑，返回所有分析结果的字典。
     cmd_analyze 和 cmd_score 共用此函数，避免重复计算。
     """
-    from modules.indicators import analyze_stock
-    from modules.indicators.data_layer import get_kline_data, DailyData
-    from modules.strategies import detect_all_strategies
+    from core.indicators import analyze_stock
+    from core.indicators.data_layer import get_kline_data, DailyData
+    from core.strategies import detect_all_strategies
     from modules.portfolio_diagnosis import diagnose_stock
-    from modules.screener import analyze_stock as screener_analyze
+    from core.screener import score_stock as screener_score
 
     # 1. 指标分析
     result = analyze_stock(ts_code, days=days)
@@ -74,7 +74,7 @@ def _analyze_core(ts_code: str, days: int = 120) -> dict:
     wave_data = None
     kirin_data = None
     try:
-        from modules.indicators import detect_three_waves, detect_kirin_stage
+        from core.indicators import detect_three_waves, detect_kirin_stage
 
         klines = get_kline_data(ts_code, days=days)
         if klines:
@@ -107,7 +107,7 @@ def _analyze_core(ts_code: str, days: int = 120) -> dict:
     diagnosis = diagnose_stock(ts_code, days=days)
 
     # 5. screener 评分（复用已有数据，不再重复拉取）
-    score = screener_analyze(ts_code)
+    score = screener_score(ts_code)
 
     return {
         "ts_code": ts_code,
@@ -266,7 +266,7 @@ def cmd_analyze(args):
 
 def cmd_screen(args):
     """筛选股票（调 screener.screen_stocks）"""
-    from modules.screener import screen_stocks
+    from core.screener import screen_stocks
 
     criteria = STRATEGY_ALIAS.get(args.strategy, args.strategy)
 
@@ -317,7 +317,7 @@ def cmd_screen(args):
 
 def cmd_score(args):
     """单只股票综合评分（复用 _analyze_core，不重复计算）"""
-    from modules.screener import format_stock_score
+    from core.screener import format_stock_score
 
     if not args.ts_code:
         print("请指定股票代码: zt score <ts_code>")
@@ -349,7 +349,7 @@ def cmd_score(args):
 
 def cmd_workflow(args):
     """每日五步工作流（来自 screener.py workflow action）"""
-    from modules.screener import daily_workflow
+    from core.screener import daily_workflow
 
     daily_workflow()
 
@@ -446,7 +446,7 @@ def cmd_sync(args):
     import logging
     from datetime import datetime, timedelta
     from modules.data_sync import DataSyncer
-    from modules.database import init_database
+    from core.database import init_database
 
     logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 

@@ -23,7 +23,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any, Optional
 
-from .indicators import (
+from core.indicators import (
     DailyData,
     TradeSignal,
     calculate_bbi,
@@ -655,7 +655,7 @@ if __name__ == "__main__":
 
     # 获取 K 线数据
     try:
-        from modules.indicators import get_kline_data
+        from core.indicators import get_kline_data
 
         raw_klines = get_kline_data(args.ts_code, args.days)
     except ImportError:

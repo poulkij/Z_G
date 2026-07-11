@@ -24,6 +24,8 @@ from datetime import datetime
 
 # dotenv 加载已移至 modules/__init__.py
 
+from core.domain.profile import StockProfile
+
 
 # ==================== 板块分类 ====================
 # Z哥风格的"宏观板块"分类（从 generate_report.py 复刻，避免散落）
@@ -55,34 +57,18 @@ for _sector, _inds in MACRO_SECTORS.items():
 
 # ==================== 评估结果 ====================
 @dataclass
-class StockAssessment:
+class StockAssessment(StockProfile):
     """单只股票的评估结果（薄壳：含 analyze_stock + basic + financial）"""
 
-    ts_code: str
     code: str = ""  # 6 位代码（无 .SH/.SZ）
-    name: str = ""
     industry: str = ""
     sector: str = ""
 
-    # 行情
-    trade_date: str = ""
-    close: float = 0
-    pct_chg: float = 0
-    vol_ratio: float = 0
+    # 行情 — close/pct_chg/vol_ratio inherited from StockProfile
 
-    # 指标
-    ma5: float | None = None
-    ma20: float | None = None
+    # 指标 — k/d/j/dif/dea/macd_hist/rsi6/boll_mid/ma5/ma20 inherited from StockProfile
     ma60: float | None = None
-    k: float | None = None
-    d: float | None = None
-    j: float | None = None
-    dif: float | None = None
-    dea: float | None = None
-    macd_hist: float | None = None
-    rsi6: float | None = None
     rsi12: float | None = None
-    boll_mid: float | None = None
     boll_upper: float | None = None
     boll_lower: float | None = None
 

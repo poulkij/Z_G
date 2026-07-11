@@ -6,7 +6,7 @@
 from datetime import datetime, timedelta
 from unittest.mock import patch, MagicMock
 
-from modules.backtest import (
+from core.backtest import (
     Trade,
     PortfolioBacktestResult,
     backtest_signals,

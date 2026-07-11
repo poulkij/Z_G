@@ -15,7 +15,7 @@ from dataclasses import dataclass, field
 
 # dotenv 加载已移至 modules/__init__.py（包级别一次性加载）
 
-from .indicators import (
+from core.indicators import (
     analyze_stock,
     get_kline_data,
     calculate_sell_score,
@@ -26,7 +26,7 @@ from .indicators import (
     calculate_sandglass_score,
     detect_kirin_stage,
 )
-from .strategies import detect_all_strategies, StrategyType
+from core.strategies import detect_all_strategies, StrategyType
 
 
 @dataclass
@@ -188,7 +188,7 @@ def diagnose_stock(ts_code: str, days: int = 100) -> DiagnosisReport:
 
 def get_stock_info_db(ts_code: str) -> dict[str, Any] | None:
     """获取股票基本信息（兼容直接运行）"""
-    from .database import get_connection
+    from core.database import get_connection
 
     try:
         with get_connection() as conn:

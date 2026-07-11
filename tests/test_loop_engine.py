@@ -3,7 +3,7 @@
 """
 
 import pytest
-from modules.indicators import DailyData
+from core.indicators import DailyData
 from modules.loop_engine import (
     ShaofuLoopEngine,
     LoopConfig,

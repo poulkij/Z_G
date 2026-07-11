@@ -3,7 +3,7 @@ strategies.py 战法识别测试
 """
 
 import pytest
-from modules.strategies import (
+from core.strategies import (
     StrategyType,
     Priority,
     detect_b1,
@@ -28,9 +28,9 @@ from modules.strategies import (
     detect_staircase_distribution,
     detect_top_pinwheel,
 )
-from modules.indicators import detect_volume_attack, DailyData
-from modules.indicators.core import calculate_ma
-from modules.strategies.core import _calc_kdj as calculate_kdj, _calc_bbi as calculate_bbi
+from core.indicators import detect_volume_attack, DailyData
+from core.indicators.core import calculate_ma
+from core.strategies.core import _calc_kdj as calculate_kdj, _calc_bbi as calculate_bbi
 from datetime import datetime, timedelta
 from tests.conftest import make_kline_row, generate_uptrend_klines
 from tests.conftest import generate_downtrend_klines, generate_b1_scenario

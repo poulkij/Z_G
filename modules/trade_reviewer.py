@@ -7,8 +7,8 @@ from typing import Optional
 from dataclasses import dataclass
 from datetime import datetime
 
-from .database import save_trade_record, get_trade_records
-from .indicators import analyze_stock
+from core.database import save_trade_record, get_trade_records
+from core.indicators import analyze_stock
 from .trade_parser import TradeParser, ParseResult
 
 # 黑话词典（LLM 生成点评时可用）

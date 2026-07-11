@@ -5,7 +5,7 @@
 
 from typing import Any, Optional
 from datetime import datetime, timedelta
-from .database import (
+from core.database import (
     save_trade_record,
     get_trade_records,
     get_trade_record_by_id,
@@ -13,8 +13,8 @@ from .database import (
     delete_trade_record,
     get_trade_summary,
 )
-from .indicators import analyze_stock
-from .strategies import detect_all_strategies, StrategySignal
+from core.indicators import analyze_stock
+from core.strategies import detect_all_strategies, StrategySignal
 
 
 def get_indicator_data(ts_code: str, trade_date: str) -> dict[str, Any] | None:
@@ -23,7 +23,7 @@ def get_indicator_data(ts_code: str, trade_date: str) -> dict[str, Any] | None:
 
     优先查 indicator_cache 表，无记录则尝试实时计算
     """
-    from .database import get_connection
+    from core.database import get_connection
 
     with get_connection() as conn:
         cursor = conn.cursor()
@@ -49,7 +49,7 @@ def get_stock_info(ts_code: str) -> dict[str, Any] | None:
     """
     获取股票基本信息
     """
-    from .database import get_connection
+    from core.database import get_connection
 
     with get_connection() as conn:
         cursor = conn.cursor()

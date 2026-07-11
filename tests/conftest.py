@@ -36,7 +36,7 @@ def mock_env_for_tests():
 @pytest.fixture
 def temp_db(mock_env_for_tests):
     """提供初始化好的临时数据库"""
-    from modules.database import init_database, drop_all_tables
+    from core.database import init_database, drop_all_tables
 
     init_database()
     yield mock_env_for_tests
@@ -49,7 +49,7 @@ def temp_db(mock_env_for_tests):
 @pytest.fixture
 def db_conn(temp_db):
     """提供数据库连接"""
-    from modules.database import get_connection
+    from core.database import get_connection
 
     with get_connection() as conn:
         yield conn
@@ -84,7 +84,7 @@ def make_daily_data(ts_code="600519.SH", base_date="20260101", base_price=1500.0
     """
     工厂函数：生成 DailyData 对象（用于 indicators 模块）
     """
-    from modules.indicators import DailyData
+    from core.indicators import DailyData
 
     return DailyData(
         ts_code=ts_code,
@@ -289,7 +289,7 @@ def mock_monthly_reviews_with_poor_strategy():
     """mock 3 个月复盘数据, 一只策略 stock_count=1 胜率 -30%."""
     from datetime import datetime, timedelta
 
-    from modules.database import get_connection
+    from core.database import get_connection
 
     months = []
     base = datetime(2026, 3, 1)

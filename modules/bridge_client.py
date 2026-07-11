@@ -292,7 +292,7 @@ def _get_local_daily(
     end_date: str | None = None,
 ) -> list[dict]:
     """从本地 SQLite 获取日线数据"""
-    from .database import get_db_connection
+    from core.database import get_db_connection
 
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -326,7 +326,7 @@ def _get_local_daily(
 
 def _get_local_stock_list(exchange: str | None = None) -> list[dict]:
     """从本地 SQLite 获取股票列表"""
-    from .database import get_db_connection
+    from core.database import get_db_connection
 
     conn = get_db_connection()
     cursor = conn.cursor()

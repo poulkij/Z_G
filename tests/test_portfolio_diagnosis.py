@@ -11,7 +11,7 @@ from modules.portfolio_diagnosis import (
     _daily_to_dict,
     format_report,
 )
-from modules.indicators import IndicatorResult, DailyData
+from core.indicators import IndicatorResult, DailyData
 
 
 class TestDailyToDict:
