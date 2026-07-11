@@ -13,6 +13,7 @@ from .engine import (
     _calc_shares,
     _calc_stats,
 )
+from .param_tuner import tune_params, TuneResult
 
 __all__ = [
     "Trade",
@@ -22,4 +23,6 @@ __all__ = [
     "backtest_strategy",
     "backtest_multi_strategy",
     "backtest_portfolio",
+    "tune_params",
+    "TuneResult",
 ]
