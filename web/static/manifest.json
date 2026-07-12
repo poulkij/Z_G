@@ -1,0 +1,10 @@
+{
+    "name": "Z哥量化分析平台",
+    "short_name": "Z哥量化",
+    "description": "zettaranc 交易思维量化分析",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#0f0f1e",
+    "theme_color": "#1a1a2e",
+    "icons": []
+}
