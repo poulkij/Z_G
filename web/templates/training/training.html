@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block title %}选股训练 — Z哥量化分析平台{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>选股训练</h1>
+    <p style="color:var(--text-dim);font-size:0.85rem">选日期 → 战法筛选 → 模拟买卖 → 结算统计</p>
+</div>
+
+<!-- Step 1: 选日期 + 战法筛选 -->
+<div class="training-step" style="background:var(--card-bg);border:1px solid var(--border);border-radius:8px;padding:1.5rem;margin-bottom:1rem">
+    <h3 style="color:var(--accent);margin-bottom:0.75rem">Step 1: 选日期 + 战法筛选</h3>
+    <div style="display:flex;gap:0.5rem;flex-wrap:wrap;align-items:end">
+        <div class="form-group" style="flex:1;min-width:150px">
+            <label>筛选日期</label>
+            <input type="date" id="train-date" value="2025-06-01">
+        </div>
+        <div class="form-group" style="flex:1;min-width:150px">
+            <label>战法（多选）</label>
+            <select id="train-strategies" multiple style="height:80px">
+                <option value="b1">B1 买点</option>
+                <option value="perfect">完美图形</option>
+                <option value="breakout">突破</option>
+                <option value="oversold">超跌</option>
+                <option value="changan">长安</option>
+                <option value="build_wave">建仓波</option>
+                <option value="xishou">吸筹</option>
+                <option value="safe">安全</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>最低评分</label>
+            <input type="number" id="train-min-score" value="0" style="width:80px">
+        </div>
+        <button class="btn" onclick="trainingScreen()">筛选股票</button>
+    </div>
+</div>
+
+<!-- Step 2: 筛选结果 -->
+<div class="training-step" id="train-screen-result" style="margin-bottom:1rem"></div>
+
+<!-- Step 3: 持仓管理 -->
+<div class="training-step" id="train-positions" style="background:var(--card-bg);border:1px solid var(--border);border-radius:8px;padding:1.5rem;margin-bottom:1rem;display:none">
+    <h3 style="color:var(--accent);margin-bottom:0.75rem">Step 3: 模拟交易</h3>
+    <table class="data-table" id="position-table">
+        <thead><tr><th>代码</th><th>名称</th><th>买入价</th><th>数量</th><th>操作</th></tr></thead>
+        <tbody id="position-body"></tbody>
+    </table>
+</div>
+
+<!-- Step 4: 结算 -->
+<div class="training-step" style="background:var(--card-bg);border:1px solid var(--border);border-radius:8px;padding:1.5rem">
+    <h3 style="color:var(--accent);margin-bottom:0.75rem">Step 4: 结算</h3>
+    <div style="display:flex;gap:0.5rem;align-items:end;flex-wrap:wrap">
+        <div class="form-group" style="flex:1;min-width:150px">
+            <label>结算日期</label>
+            <input type="date" id="settle-date">
+        </div>
+        <button class="btn" onclick="settleUp()">结算统计</button>
+        <button class="btn" style="background:var(--border)" onclick="clearTraining()">清空重来</button>
+    </div>
+</div>
+
+<div id="settle-result" style="margin-top:1.5rem"></div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/pages/training.js"></script>
+{% endblock %}

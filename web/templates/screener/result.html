@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}选股筛选 — Z哥量化分析平台{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>选股筛选</h1>
+</div>
+
+<div class="filter-bar">
+    <div class="form-group" style="display:flex;gap:0.5rem;align-items:end;flex-wrap:wrap">
+        <div>
+            <label>战法策略</label>
+            <select id="strategy-select">
+                <option value="b1">B1 买点</option>
+                <option value="perfect">完美图形</option>
+                <option value="breakout">突破形态</option>
+                <option value="oversold">超跌反弹</option>
+                <option value="super_b1">超级 B1</option>
+                <option value="changan">长安战法</option>
+                <option value="b2_breakout">B2 突破</option>
+                <option value="b3_consensus">B3 分歧转一致</option>
+                <option value="build_wave">建仓波</option>
+                <option value="xishou">吸筹阶段</option>
+                <option value="safe">安全选股</option>
+                <option value="bull_rope">牛绳牵牛</option>
+                <option value="sandglass_perfect">沙漏完美</option>
+                <option value="volume_ratio_super">量比战法</option>
+            </select>
+        </div>
+        <div>
+            <label>最大扫描数</label>
+            <input type="number" id="max-stocks" value="500" min="10" max="5000" style="width:100px">
+        </div>
+        <button class="btn" onclick="runScreener()">筛选</button>
+    </div>
+</div>
+
+<div id="screener-results" style="margin-top:1rem">
+    <p style="color:var(--text-dim)">选择策略后点击筛选</p>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/pages/screener.js"></script>
+{% endblock %}

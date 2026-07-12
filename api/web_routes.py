@@ -27,3 +27,27 @@ def stock_page(request: Request, ts_code: str):
         "stock/analysis.html",
         {"ts_code": ts_code},
     )
+
+
+@router.get("/screener", response_class=HTMLResponse)
+def screener_page(request: Request):
+    """选股筛选"""
+    return templates.TemplateResponse(request, "screener/result.html")
+
+
+@router.get("/backtest", response_class=HTMLResponse)
+def backtest_page(request: Request):
+    """策略回测"""
+    return templates.TemplateResponse(request, "backtest/run.html")
+
+
+@router.get("/training", response_class=HTMLResponse)
+def training_page(request: Request):
+    """选股训练"""
+    return templates.TemplateResponse(request, "training/training.html")
+
+
+@router.get("/portfolio", response_class=HTMLResponse)
+def portfolio_page(request: Request):
+    """持仓诊断"""
+    return templates.TemplateResponse(request, "portfolio/diagnose.html")

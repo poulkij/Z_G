@@ -25,3 +25,35 @@ def test_static_css():
     response = client.get("/static/css/app.css")
     assert response.status_code == 200
     assert "background" in response.text
+
+
+def test_screener_page():
+    from api.app import app
+    client = TestClient(app)
+    response = client.get("/screener")
+    assert response.status_code == 200
+    assert "选股筛选" in response.text
+
+
+def test_backtest_page():
+    from api.app import app
+    client = TestClient(app)
+    response = client.get("/backtest")
+    assert response.status_code == 200
+    assert "策略回测" in response.text
+
+
+def test_training_page():
+    from api.app import app
+    client = TestClient(app)
+    response = client.get("/training")
+    assert response.status_code == 200
+    assert "选股训练" in response.text
+
+
+def test_portfolio_page():
+    from api.app import app
+    client = TestClient(app)
+    response = client.get("/portfolio")
+    assert response.status_code == 200
+    assert "持仓诊断" in response.text
