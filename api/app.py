@@ -15,3 +15,13 @@ app = FastAPI(
 def health_check():
     """健康检查"""
     return {"status": "ok"}
+
+
+# 注册路由
+from api.routes import stock, screener, backtest, training, portfolio  # noqa: E402
+
+app.include_router(stock.router)
+app.include_router(screener.router)
+app.include_router(backtest.router)
+app.include_router(training.router)
+app.include_router(portfolio.router)
