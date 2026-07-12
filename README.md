@@ -116,8 +116,8 @@
 ### 1. 安装
 
 ```bash
-git clone https://github.com/lululu811/zettaranc-skill.git
-cd zettaranc-skill
+git clone https://github.com/poulkij/Z_G.git
+cd Z_G
 pip install -r requirements.txt
 ```
 
@@ -685,7 +685,7 @@ zettaranc ❯ 万科A，跑了250天的回测：
 
 | 平台 | 地址 | 说明 |
 |------|------|------|
-| **GitHub** | https://github.com/lululu811/zettaranc-skill.git | 主仓库 |
+| **GitHub** | https://github.com/poulkij/Z_G.git | 主仓库 |
 | **Gitee** | https://gitee.com/chenleizzzz/zettaranc-knowledge.git | 镜像同步 |
 
 ---
