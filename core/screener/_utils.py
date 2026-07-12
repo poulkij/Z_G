@@ -5,7 +5,7 @@
 """
 
 from core.indicators import DailyData, calculate_ma
-from core.database import get_db_connection
+from core.database import get_connection
 from modules.bridge_client import get_all_stocks_bridge_first, get_daily_klines
 
 
@@ -21,16 +21,15 @@ def get_all_stocks() -> list[dict]:
         return [s for s in stocks if s.get("market") in ("主板", "创业板", "科创板", None)]
 
     # 回退到本地
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute("""
-        SELECT ts_code, name, industry, market
-        FROM stock_basic
-        WHERE market IN ('主板', '创业板', '科创板')
-        ORDER BY ts_code
-    """)
-    stocks = [dict(row) for row in cursor.fetchall()]
-    conn.close()
+    with get_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT ts_code, name, industry, market
+            FROM stock_basic
+            WHERE market IN ('主板', '创业板', '科创板')
+            ORDER BY ts_code
+        """)
+        stocks = [dict(row) for row in cursor.fetchall()]
     return stocks
 
 

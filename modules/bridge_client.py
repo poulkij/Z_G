@@ -292,33 +292,32 @@ def _get_local_daily(
     end_date: str | None = None,
 ) -> list[dict]:
     """从本地 SQLite 获取日线数据"""
-    from core.database import get_db_connection
+    from core.database import get_connection
 
-    conn = get_db_connection()
-    cursor = conn.cursor()
+    with get_connection() as conn:
+        cursor = conn.cursor()
 
-    params: list = [ts_code]
-    sql = """
+        params: list = [ts_code]
+        sql = """
         SELECT ts_code, trade_date, open, high, low, close, vol, amount, pct_chg
         FROM daily_kline
         WHERE ts_code = ?
-    """
+        """
 
-    if start_date:
-        sql += " AND trade_date >= ?"
-        params.append(start_date)
-    if end_date:
-        sql += " AND trade_date <= ?"
-        params.append(end_date)
+        if start_date:
+            sql += " AND trade_date >= ?"
+            params.append(start_date)
+        if end_date:
+            sql += " AND trade_date <= ?"
+            params.append(end_date)
 
-    sql += " ORDER BY trade_date DESC"
-    if not start_date and days > 0:
-        sql += " LIMIT ?"
-        params.append(days)
+        sql += " ORDER BY trade_date DESC"
+        if not start_date and days > 0:
+            sql += " LIMIT ?"
+            params.append(days)
 
-    cursor.execute(sql, params)
-    rows = cursor.fetchall()
-    conn.close()
+        cursor.execute(sql, params)
+        rows = cursor.fetchall()
 
     # 转为升序
     return [dict(row) for row in reversed(rows)]
@@ -326,23 +325,22 @@ def _get_local_daily(
 
 def _get_local_stock_list(exchange: str | None = None) -> list[dict]:
     """从本地 SQLite 获取股票列表"""
-    from core.database import get_db_connection
+    from core.database import get_connection
 
-    conn = get_db_connection()
-    cursor = conn.cursor()
+    with get_connection() as conn:
+        cursor = conn.cursor()
 
-    sql = "SELECT ts_code, name, industry, market FROM stock_basic"
-    params: list = []
+        sql = "SELECT ts_code, name, industry, market FROM stock_basic"
+        params: list = []
 
-    if exchange:
-        sql += " WHERE exchange = ?"
-        params.append(exchange)
+        if exchange:
+            sql += " WHERE exchange = ?"
+            params.append(exchange)
 
-    sql += " ORDER BY ts_code"
+        sql += " ORDER BY ts_code"
 
-    cursor.execute(sql, params)
-    rows = cursor.fetchall()
-    conn.close()
+        cursor.execute(sql, params)
+        rows = cursor.fetchall()
 
     return [dict(row) for row in rows]
 

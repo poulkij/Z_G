@@ -1,6 +1,8 @@
 from typing import Any, Optional
 from collections.abc import Callable
 
+from core.database import get_connection
+
 """
 技术指标数据层模块
 """
@@ -257,14 +259,13 @@ def _load_indicator_cache(ts_code: str, trade_date: str) -> IndicatorResult | No
         return _indicator_memory_cache[mem_key]
 
     try:
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        cursor.execute(
-            "SELECT * FROM indicator_cache WHERE ts_code = ? AND trade_date = ?",
-            (ts_code, trade_date),
-        )
-        row = cursor.fetchone()
-        conn.close()
+        with get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute(
+                "SELECT * FROM indicator_cache WHERE ts_code = ? AND trade_date = ?",
+                (ts_code, trade_date),
+            )
+            row = cursor.fetchone()
 
         if not row:
             return None
@@ -283,11 +284,10 @@ def _save_indicator_cache(result: IndicatorResult, klines: list[DailyData]) -> b
 
     today = klines[-1]
     try:
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        cursor.execute(_SAVE_SQL, _build_save_tuple(result, today))
-        conn.commit()
-        conn.close()
+        with get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute(_SAVE_SQL, _build_save_tuple(result, today))
+            conn.commit()
         _indicator_memory_cache[(result.ts_code, result.trade_date)] = result
         return True
     except Exception:
@@ -310,26 +310,25 @@ def get_kline_data(ts_code: str, days: int = 100) -> list[DailyData]:
     Returns:
         K线数据列表（按日期升序）
     """
-    conn = get_db_connection()
-    cursor = conn.cursor()
+    with get_connection() as conn:
+        cursor = conn.cursor()
 
-    cursor.execute(
-        """
-        SELECT ts_code, trade_date, open, high, low, close, vol, amount, pct_chg
-        FROM (
+        cursor.execute(
+            """
             SELECT ts_code, trade_date, open, high, low, close, vol, amount, pct_chg
-            FROM daily_kline
-            WHERE ts_code = ?
-            ORDER BY trade_date DESC
-            LIMIT ?
+            FROM (
+                SELECT ts_code, trade_date, open, high, low, close, vol, amount, pct_chg
+                FROM daily_kline
+                WHERE ts_code = ?
+                ORDER BY trade_date DESC
+                LIMIT ?
+            )
+            ORDER BY trade_date ASC
+        """,
+            (ts_code, days),
         )
-        ORDER BY trade_date ASC
-    """,
-        (ts_code, days),
-    )
 
-    rows = cursor.fetchall()
-    conn.close()
+        rows = cursor.fetchall()
 
     data_list = []
     for i, row in enumerate(rows):

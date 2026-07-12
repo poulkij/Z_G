@@ -17,11 +17,11 @@ from .core import (
     Action,
     StrategySignal,
     get_kline_data,
-    get_db_connection,
     _klines_dict_to_daily,
     _calc_kdj,
     _calc_bbi,
 )
+from core.database import get_db_connection, get_connection  # noqa: F401  向后兼容重导出
 
 from .base_strategies import detect_b1, detect_b2, detect_b3, detect_sb1
 from .compound_strategies import (

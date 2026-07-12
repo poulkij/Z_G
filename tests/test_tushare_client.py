@@ -19,7 +19,7 @@ class TestTushareClientInit:
         from modules.tushare_client import TushareClient
 
         client = TushareClient()
-        assert client._pro is None
+        assert client.pro is None
 
     def test_jnb_mode_requires_token_or_url(self, mock_env_for_tests):
         """JNB 模式下必须有 token 和 API URL（API URL 先检查）"""
@@ -130,14 +130,14 @@ class TestApiMethods:
 
     def test_get_index_daily_returns_dataframe(self, client):
         mock_df = pd.DataFrame({"trade_date": ["20260115"], "close": [3500.0]})
-        client._pro = MagicMock()
-        client._pro.index_daily.return_value = mock_df
+        client.pro = MagicMock()
+        client.pro.index_daily.return_value = mock_df
         result = client.get_index_daily("000300.SH", "20260101", "20260115")
         assert len(result) == 1
 
     def test_get_index_daily_exception_returns_none(self, client):
-        client._pro = MagicMock()
-        client._pro.index_daily.side_effect = Exception("API error")
+        client.pro = MagicMock()
+        client.pro.index_daily.side_effect = Exception("API error")
         result = client.get_index_daily("000300.SH", "20260101", "20260115")
         assert result is None
 
@@ -154,63 +154,63 @@ class TestApiMethods:
 
     def test_get_moneyflow(self, client):
         mock_df = pd.DataFrame({"ts_code": ["600519.SH"], "buy_sm_amount": [1000.0]})
-        client._pro = MagicMock()
-        client._pro.moneyflow.return_value = mock_df
+        client.pro = MagicMock()
+        client.pro.moneyflow.return_value = mock_df
         result = client.get_moneyflow("600519.SH", "20260115")
         assert len(result) == 1
 
     def test_get_stock_basic_with_ts_code(self, client):
         mock_df = pd.DataFrame({"ts_code": ["600519.SH"], "name": ["贵州茅台"]})
-        client._pro = MagicMock()
-        client._pro.stock_basic.return_value = mock_df
+        client.pro = MagicMock()
+        client.pro.stock_basic.return_value = mock_df
         result = client.get_stock_basic(ts_code="600519.SH")
         assert len(result) == 1
 
     def test_get_stock_basic_with_name(self, client):
         mock_df = pd.DataFrame({"ts_code": ["600519.SH"], "name": ["贵州茅台"]})
-        client._pro = MagicMock()
-        client._pro.stock_basic.return_value = mock_df
+        client.pro = MagicMock()
+        client.pro.stock_basic.return_value = mock_df
         result = client.get_stock_basic(name="贵州茅台")
         assert len(result) == 1
 
     def test_get_stock_basic_exception_returns_none(self, client):
-        client._pro = MagicMock()
-        client._pro.stock_basic.side_effect = Exception("API error")
+        client.pro = MagicMock()
+        client.pro.stock_basic.side_effect = Exception("API error")
         result = client.get_stock_basic(ts_code="600519.SH")
         assert result is None
 
     def test_get_limit_list(self, client):
         mock_df = pd.DataFrame({"ts_code": ["600519.SH"], "limit": ["U"]})
-        client._pro = MagicMock()
-        client._pro.limit_list_d.return_value = mock_df
+        client.pro = MagicMock()
+        client.pro.limit_list_d.return_value = mock_df
         result = client.get_limit_list("20260115")
         assert len(result) == 1
 
     def test_get_top_list(self, client):
         mock_df = pd.DataFrame({"ts_code": ["600519.SH"]})
-        client._pro = MagicMock()
-        client._pro.top_list.return_value = mock_df
+        client.pro = MagicMock()
+        client.pro.top_list.return_value = mock_df
         result = client.get_top_list("20260115")
         assert len(result) == 1
 
     def test_get_financial_data(self, client):
         mock_df = pd.DataFrame({"ts_code": ["600519.SH"], "pe": [30.5]})
-        client._pro = MagicMock()
-        client._pro.fina_indicator.return_value = mock_df
+        client.pro = MagicMock()
+        client.pro.fina_indicator.return_value = mock_df
         result = client.get_financial_data("600519.SH", "20250101", "20260101")
         assert len(result) == 1
 
     def test_get_trade_cal(self, client):
         mock_df = pd.DataFrame({"exchange": ["SSE"], "is_open": [1]})
-        client._pro = MagicMock()
-        client._pro.trade_cal.return_value = mock_df
+        client.pro = MagicMock()
+        client.pro.trade_cal.return_value = mock_df
         result = client.get_trade_cal(exchange="SSE", start_date="20260101", end_date="20260115")
         assert len(result) == 1
 
     def test_get_trade_cal_no_dates(self, client):
         mock_df = pd.DataFrame({"exchange": ["SSE"], "is_open": [1]})
-        client._pro = MagicMock()
-        client._pro.trade_cal.return_value = mock_df
+        client.pro = MagicMock()
+        client.pro.trade_cal.return_value = mock_df
         result = client.get_trade_cal()
         assert len(result) == 1
 

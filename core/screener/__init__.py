@@ -17,7 +17,7 @@ from typing import Any
 from dataclasses import dataclass, field
 from datetime import datetime
 
-from core.database import get_db_connection
+from core.database import get_connection
 from core.indicators import DailyData, calculate_ma
 
 from core.screener._utils import (
@@ -98,12 +98,11 @@ def score_stock(ts_code: str, klines: list[DailyData] | None = None) -> StockSco
     klines[-1]
 
     # 获取股票名称
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute("SELECT name FROM stock_basic WHERE ts_code = ?", (ts_code,))
-    row = cursor.fetchone()
+    with get_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT name FROM stock_basic WHERE ts_code = ?", (ts_code,))
+        row = cursor.fetchone()
     name = row["name"] if row else ts_code
-    conn.close()
 
     # 计算各项评分
     b1_score, b1_reasons = score_b1_opportunity(klines)
@@ -283,36 +282,34 @@ def get_market_status() -> MarketStatus:
     today = datetime.now().strftime("%Y%m%d")
 
     # 获取沪深300成分股简单评估
-    conn = get_db_connection()
-    cursor = conn.cursor()
+    with get_connection() as conn:
+        cursor = conn.cursor()
 
-    cursor.execute("""
-        SELECT ts_code FROM stock_basic
-        WHERE market IN ('主板')
-        LIMIT 100
-    """)
-    stocks = [row["ts_code"] for row in cursor.fetchall()]
+        cursor.execute("""
+            SELECT ts_code FROM stock_basic
+            WHERE market IN ('主板')
+            LIMIT 100
+        """)
+        stocks = [row["ts_code"] for row in cursor.fetchall()]
 
-    rise_count = 0
-    total_count = 0
+        rise_count = 0
+        total_count = 0
 
-    for ts_code in stocks[:20]:
-        cursor.execute(
-            """
-            SELECT pct_chg FROM daily_kline
-            WHERE ts_code = ?
-            ORDER BY trade_date DESC
-            LIMIT 1
-        """,
-            (ts_code,),
-        )
-        row = cursor.fetchone()
-        if row:
-            total_count += 1
-            if row["pct_chg"] > 0:
-                rise_count += 1
-
-    conn.close()
+        for ts_code in stocks[:20]:
+            cursor.execute(
+                """
+                SELECT pct_chg FROM daily_kline
+                WHERE ts_code = ?
+                ORDER BY trade_date DESC
+                LIMIT 1
+            """,
+                (ts_code,),
+            )
+            row = cursor.fetchone()
+            if row:
+                total_count += 1
+                if row["pct_chg"] > 0:
+                    rise_count += 1
 
     # 计算涨跌家数比
     if total_count > 0:

@@ -2,6 +2,8 @@
 Z哥量化推送模块测试
 """
 
+import sys
+import pytest
 from unittest.mock import patch, MagicMock
 from modules.notifier import escape_applescript_string, notify_macos, notify_feishu, notify_all
 
@@ -39,6 +41,7 @@ def test_notify_feishu(mock_post):
 @patch("modules.notifier.notify_macos")
 @patch("modules.notifier.notify_feishu")
 @patch("os.uname")
+@pytest.mark.skipif(sys.platform == "win32", reason="os.uname 在 Windows 不存在，无法 patch")
 def test_notify_all_mac(mock_uname, mock_feishu, mock_macos):
     # 模拟在 macOS (Darwin) 环境下
     mock_uname.return_value = MagicMock(sysname="Darwin")
@@ -55,6 +58,7 @@ def test_notify_all_mac(mock_uname, mock_feishu, mock_macos):
 @patch("modules.notifier.notify_macos")
 @patch("modules.notifier.notify_feishu")
 @patch("os.uname")
+@pytest.mark.skipif(sys.platform == "win32", reason="os.uname 在 Windows 不存在，无法 patch")
 def test_notify_all_linux(mock_uname, mock_feishu, mock_macos):
     # 模拟在 Linux 环境下 (不触发 macOS 通知)
     mock_uname.return_value = MagicMock(sysname="Linux")
