@@ -2,7 +2,7 @@
 
 Issues and PRDs for this repo live as GitHub issues. Use the `gh` CLI for all operations.
 
-- Repository: `lululu811/zettaranc-skill`
+- Repository: `poulkij/Z_G`
 - Infer the repo from `git remote -v` — `gh` does this automatically when run inside a clone.
 
 ## Conventions
