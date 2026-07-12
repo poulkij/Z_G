@@ -10,9 +10,9 @@ from datetime import datetime
 
 # dotenv 加载已移至 modules/__init__.py（包级别一次性加载）
 
-from .database import add_watchlist_item, remove_watchlist_item, get_watchlist
-from .indicators import analyze_stock
-from .strategies import detect_all_strategies, StrategyType
+from core.database import add_watchlist_item, remove_watchlist_item, get_watchlist
+from core.indicators import analyze_stock
+from core.strategies import detect_all_strategies, StrategyType
 
 logger = logging.getLogger(__name__)
 

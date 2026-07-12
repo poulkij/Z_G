@@ -113,6 +113,16 @@ Tushare API → data_sync → SQLite → indicators/ → strategies/ → backtes
 8. **最小改动原则**：修改 `SKILL.md` 需语料支撑，不能凭印象
 9. **Python 层只做数据准备**：点评话术由 LLM 用 Z 哥角色生成，避免"AI味"
 
+## Agent skills
+
+### Issue tracker
+
+Issues live in GitHub Issues for `lululu811/zettaranc-skill`. See `docs/agents/issue-tracker.md`.
+
+### Domain docs
+
+Single-context layout: one `CONTEXT.md` + `docs/adr/` at the repo root. See `docs/agents/domain.md`.
+
 ## 代码风格
 
 - **Python**：4 空格缩进，UTF-8，LF 换行

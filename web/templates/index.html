@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}Z哥量化分析平台 — 首页{% endblock %}
+
+{% block content %}
+<div class="home-grid">
+    <a href="/stock/600519.SH" class="home-card">
+        <h2>个股看板</h2>
+        <p>K线 + 技术指标 + 战法信号 + 评分</p>
+    </a>
+    <a href="/screener" class="home-card">
+        <h2>选股筛选</h2>
+        <p>多策略筛选 + 评分排序</p>
+    </a>
+    <a href="/backtest" class="home-card">
+        <h2>策略回测</h2>
+        <p>历史回测 + 参数调优</p>
+    </a>
+    <a href="/training" class="home-card">
+        <h2>选股训练</h2>
+        <p>日期选股 + 模拟交易 + 结算</p>
+    </a>
+    <a href="/portfolio" class="home-card">
+        <h2>持仓诊断</h2>
+        <p>持股诊断 + 交割单复盘</p>
+    </a>
+</div>
+{% endblock %}

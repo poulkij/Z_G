@@ -4,8 +4,8 @@
 
 from datetime import datetime, timedelta
 
-from modules.indicators import DailyData
-from modules.indicators.kirin_detector import (
+from core.indicators import DailyData
+from core.indicators.kirin_detector import (
     detect_kirin_stage,
     _calculate_red_green_ratio,
     _detect_n_shape_raise,

@@ -8,7 +8,7 @@
 from datetime import datetime, timedelta
 from typing import Optional, Any
 
-from modules.database import get_connection
+from core.database import get_connection
 
 
 class TrackingManager:

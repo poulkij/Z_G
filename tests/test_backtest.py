@@ -6,7 +6,7 @@
 from datetime import datetime, timedelta
 from unittest.mock import patch, MagicMock
 
-from modules.backtest import (
+from core.backtest import (
     Trade,
     PortfolioBacktestResult,
     backtest_signals,
@@ -150,8 +150,8 @@ class TestCalcStats:
 
 
 class TestBacktestMultiStrategy:
-    @patch("modules.backtest.get_kline_data")
-    @patch("modules.backtest.detect_all_strategies")
+    @patch("core.backtest.engine.get_kline_data")
+    @patch("core.backtest.engine.detect_all_strategies")
     def test_basic(self, mock_detect, mock_klines):
         klines = _make_klines(n=10)
         mock_klines.return_value = klines
@@ -165,8 +165,8 @@ class TestBacktestMultiStrategy:
         assert len(result.equity_curve) > 0
         assert result.total_trades >= 0
 
-    @patch("modules.backtest.get_kline_data")
-    @patch("modules.backtest.detect_all_strategies")
+    @patch("core.backtest.engine.get_kline_data")
+    @patch("core.backtest.engine.detect_all_strategies")
     def test_no_signals(self, mock_detect, mock_klines):
         klines = _make_klines(n=5)
         mock_klines.return_value = klines
@@ -176,8 +176,8 @@ class TestBacktestMultiStrategy:
         assert result.total_trades == 0
         assert len(result.equity_curve) == len(klines)
 
-    @patch("modules.backtest.get_kline_data")
-    @patch("modules.backtest.detect_all_strategies")
+    @patch("core.backtest.engine.get_kline_data")
+    @patch("core.backtest.engine.detect_all_strategies")
     def test_position_sizing(self, mock_detect, mock_klines):
         klines = _make_klines(n=10, start_price=100.0)
         mock_klines.return_value = klines
@@ -193,8 +193,8 @@ class TestBacktestMultiStrategy:
 
 
 class TestBacktestPortfolio:
-    @patch("modules.backtest.get_kline_data")
-    @patch("modules.backtest.detect_all_strategies")
+    @patch("core.backtest.engine.get_kline_data")
+    @patch("core.backtest.engine.detect_all_strategies")
     def test_basic(self, mock_detect, mock_klines):
         klines_a = _make_klines(n=10, ts_code="000001.SZ")
         klines_b = _make_klines(n=10, ts_code="000002.SZ")
@@ -223,8 +223,8 @@ class TestBacktestPortfolio:
         assert len(result.equity_curve) > 0
         assert result.total_trades >= 0
 
-    @patch("modules.backtest.get_kline_data")
-    @patch("modules.backtest.detect_all_strategies")
+    @patch("core.backtest.engine.get_kline_data")
+    @patch("core.backtest.engine.detect_all_strategies")
     def test_empty_stocks(self, mock_detect, mock_klines):
         mock_klines.return_value = []
         mock_detect.return_value = []

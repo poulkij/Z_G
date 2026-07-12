@@ -4,8 +4,8 @@
 
 from datetime import datetime, timedelta
 
-from modules.indicators import DailyData
-from modules.indicators.wave_theory import (
+from core.indicators import DailyData
+from core.indicators.wave_theory import (
     detect_three_waves,
     classify_wave_for_b1,
     _find_recent_low,

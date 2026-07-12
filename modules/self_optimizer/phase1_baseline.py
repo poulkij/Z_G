@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from modules.database import get_connection
+from core.database import get_connection
 from modules.self_optimizer.scorer import compute_total_score
 
 

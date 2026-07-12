@@ -18,7 +18,7 @@ import random
 from dataclasses import dataclass, field
 from typing import Any
 
-from modules.backtest import backtest_strategy, BacktestResult
+from core.backtest import backtest_strategy, BacktestResult
 from modules.self_optimizer.param_registry import (
     get_defaults,
     using_params,

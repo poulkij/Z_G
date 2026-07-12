@@ -86,3 +86,6 @@ frontend/vite
 
 # 数据报告输出（自动生成，不入库）
 data/reports/
+
+# knowledge/ 目录已迁移至 core/knowledge/，保留 junction 供向后兼容（不入库）
+/knowledge/

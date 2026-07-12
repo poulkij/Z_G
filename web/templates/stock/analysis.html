@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}{{ ts_code }} — 个股看板{% endblock %}
+
+{% block content %}
+<div class="stock-header">
+    <div class="stock-title">
+        <span id="stock-code">{{ ts_code }}</span>
+        <span class="name" id="stock-name"></span>
+    </div>
+    <div class="stock-search">
+        <input type="text" id="code-input" placeholder="输入股票代码" value="{{ ts_code }}">
+        <button onclick="loadStock(document.getElementById('code-input').value)">查看</button>
+    </div>
+</div>
+
+<div class="chart-grid">
+    <div id="main-chart" class="chart-main"></div>
+    <div class="chart-sub-windows" id="sub-windows"></div>
+</div>
+
+<div class="stock-sidebar">
+    <div class="sidebar-card">
+        <h3>评分雷达</h3>
+        <div id="radar-chart" class="radar-chart"></div>
+    </div>
+    <div class="sidebar-card">
+        <h3>战法信号</h3>
+        <ul class="signal-list" id="signal-list">
+            <li style="color:var(--text-dim)">加载中...</li>
+        </ul>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/charts/kline.js"></script>
+<script src="/static/js/charts/indicator.js"></script>
+<script src="/static/js/charts/signal.js"></script>
+<script src="/static/js/charts/radar.js"></script>
+<script src="/static/js/pages/stock.js"></script>
+{% endblock %}

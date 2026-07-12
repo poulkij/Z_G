@@ -22,7 +22,7 @@ except ImportError:
 
 # dotenv 加载已移至 modules/__init__.py（包级别一次性加载，override=True）
 
-from .database import get_connection, get_db_path
+from core.database import get_connection, get_db_path
 
 logger = logging.getLogger(__name__)
 
@@ -107,7 +107,7 @@ def _get_indicator_funcs() -> SimpleNamespace:
     """延迟导入技术指标函数，模块级单例（避免每次 sync_indicator_cache 重复 import）"""
     global _INDICATOR_FUNCS
     if _INDICATOR_FUNCS is None:
-        from .indicators import (
+        from core.indicators import (
             get_kline_data,
             precompute_kdj_sequence,
             precompute_macd_sequence,
@@ -405,7 +405,7 @@ def _build_indicator_row(ts_code: str, ind: dict[str, Any]) -> tuple:
 class DataSyncer:
     """数据同步器"""
 
-    def __init__(self, token: str | None = None):
+    def __init__(self, token: str | None = None, tushare_client=None):
         self.token = token or os.environ.get("TUSHARE_TOKEN")
         # 仅在 JNB 模式下强制检查 Tushare 配置
         data_mode = os.getenv("DATA_MODE", "websearch")
@@ -418,10 +418,13 @@ class DataSyncer:
                     "示例：TUSHARE_API_URL=https://tt.xiaodefa.cn"
                 )
 
-        # 初始化 Tushare
-        ts.set_token(self.token)
-        self.pro = ts.pro_api()
-        self.pro._DataApi__http_url = TUSHARE_API_URL
+        # 使用 TushareClient 统一管理 SDK 初始化与限流
+        if tushare_client is not None:
+            self._ts_client = tushare_client
+        else:
+            from .tushare_client import TushareClient
+            self._ts_client = TushareClient(token=self.token)
+        self.pro = self._ts_client.pro
 
         # 向后兼容：保留 instance-level attrs（外部可能引用）
         # 但实际限流走模块级 _GLOBAL_LIMITER
@@ -571,7 +574,11 @@ class DataSyncer:
             # 填充 NaN 以免插入失败，且保留必要的列
             df = df[["ts_code", "name", "area", "industry", "market", "list_date", "is_hs"]].fillna("")
             with get_connection() as conn:
-                df.to_sql("stock_basic", conn, if_exists="append", index=False, method="multi")
+                chunk_size = 100
+                for i in range(0, len(df), chunk_size):
+                    df.iloc[i:i + chunk_size].to_sql(
+                        "stock_basic", conn, if_exists="append", index=False
+                    )
 
             self._log_sync("stock_basic", None, datetime.now().strftime("%Y%m%d"), "success")
             logger.info(f"股票基本信息同步完成，共 {len(df)} 只")
@@ -1122,7 +1129,7 @@ def main():
     logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
     if args.action == "init":
-        from .database import init_database
+        from core.database import init_database
 
         init_database()
         print("数据库初始化完成")

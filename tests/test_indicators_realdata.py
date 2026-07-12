@@ -112,8 +112,8 @@ def merged(kline_df, stk_factor_df) -> pd.DataFrame:
 def test_macd_dif_vs_stk_factor(merged):
     """自研 MACD.dif vs Tushare stk_factor.macd_dif（v2.10.0 阈值 5%）"""
     # 用自研 calculate_macd
-    from modules.indicators import calculate_macd
-    from modules.indicators.data_layer import DailyData
+    from core.indicators import calculate_macd
+    from core.indicators.data_layer import DailyData
 
     daily_data = [
         DailyData(
@@ -145,8 +145,8 @@ def test_macd_dif_vs_stk_factor(merged):
 
 def test_macd_dea_vs_stk_factor(merged):
     """自研 MACD.dea vs Tushare stk_factor.macd_dea"""
-    from modules.indicators import calculate_macd
-    from modules.indicators.data_layer import DailyData
+    from core.indicators import calculate_macd
+    from core.indicators.data_layer import DailyData
 
     daily_data = [
         DailyData(
@@ -175,8 +175,8 @@ def test_macd_dea_vs_stk_factor(merged):
 
 def test_kdj_k_vs_stk_factor(merged):
     """自研 KDJ.k vs Tushare stk_factor.kdj_k"""
-    from modules.indicators import calculate_kdj
-    from modules.indicators.data_layer import DailyData
+    from core.indicators import calculate_kdj
+    from core.indicators.data_layer import DailyData
 
     daily_data = [
         DailyData(
@@ -205,8 +205,8 @@ def test_kdj_k_vs_stk_factor(merged):
 
 def test_kdj_d_vs_stk_factor(merged):
     """自研 KDJ.d vs Tushare stk_factor.kdj_d"""
-    from modules.indicators import calculate_kdj
-    from modules.indicators.data_layer import DailyData
+    from core.indicators import calculate_kdj
+    from core.indicators.data_layer import DailyData
 
     daily_data = [
         DailyData(
@@ -235,8 +235,8 @@ def test_kdj_d_vs_stk_factor(merged):
 
 def test_rsi6_vs_stk_factor(merged):
     """自研 RSI6 vs Tushare stk_factor.rsi_6"""
-    from modules.indicators import calculate_rsi
-    from modules.indicators.data_layer import DailyData
+    from core.indicators import calculate_rsi
+    from core.indicators.data_layer import DailyData
 
     daily_data = [
         DailyData(
@@ -263,8 +263,8 @@ def test_rsi6_vs_stk_factor(merged):
 
 def test_rsi12_vs_stk_factor(merged):
     """自研 RSI12 vs Tushare stk_factor.rsi_12"""
-    from modules.indicators import calculate_rsi
-    from modules.indicators.data_layer import DailyData
+    from core.indicators import calculate_rsi
+    from core.indicators.data_layer import DailyData
 
     daily_data = [
         DailyData(

@@ -59,10 +59,10 @@ class TushareClient:
 
             # 初始化 Tushare SDK
             ts.set_token(self.token)
-            self._pro = ts.pro_api()
-            self._pro._DataApi__http_url = TUSHARE_API_URL
+            self.pro = ts.pro_api()
+            self.pro._DataApi__http_url = TUSHARE_API_URL
         else:
-            self._pro = None
+            self.pro = None
 
         try:
             from tushare.stock import cons as ct
@@ -106,13 +106,13 @@ class TushareClient:
             start_date=start_date,
             end_date=end_date,
             adj="qfq",
-            api=self._pro,
+            api=self.pro,
         )
 
     def get_index_daily(self, ts_code: str, start_date: str, end_date: str) -> pd.DataFrame | None:
         """获取指数日线（如沪深300）"""
         return self._call_api_with_retry(
-            "get_index_daily", self._pro.index_daily, ts_code=ts_code, start_date=start_date, end_date=end_date
+            "get_index_daily", self.pro.index_daily, ts_code=ts_code, start_date=start_date, end_date=end_date
         )
 
     def get_realtime_quote(self, ts_codes: list[str]) -> pd.DataFrame | None:
@@ -122,7 +122,7 @@ class TushareClient:
 
     def get_moneyflow(self, ts_code: str, trade_date: str) -> pd.DataFrame | None:
         """获取个股资金流向"""
-        return self._call_api_with_retry("get_moneyflow", self._pro.moneyflow, ts_code=ts_code, trade_date=trade_date)
+        return self._call_api_with_retry("get_moneyflow", self.pro.moneyflow, ts_code=ts_code, trade_date=trade_date)
 
     def get_stock_basic(self, ts_code: str | None = None, name: str | None = None) -> pd.DataFrame | None:
         """获取股票基本信息"""
@@ -131,20 +131,20 @@ class TushareClient:
             params["ts_code"] = ts_code
         if name:
             params["name"] = name
-        return self._call_api_with_retry("get_stock_basic", self._pro.stock_basic, **params)
+        return self._call_api_with_retry("get_stock_basic", self.pro.stock_basic, **params)
 
     def get_limit_list(self, trade_date: str) -> pd.DataFrame | None:
         """获取涨跌停列表"""
-        return self._call_api_with_retry("get_limit_list", self._pro.limit_list_d, trade_date=trade_date)
+        return self._call_api_with_retry("get_limit_list", self.pro.limit_list_d, trade_date=trade_date)
 
     def get_top_list(self, trade_date: str) -> pd.DataFrame | None:
         """获取龙虎榜数据"""
-        return self._call_api_with_retry("get_top_list", self._pro.top_list, trade_date=trade_date)
+        return self._call_api_with_retry("get_top_list", self.pro.top_list, trade_date=trade_date)
 
     def get_financial_data(self, ts_code: str, start_date: str, end_date: str) -> pd.DataFrame | None:
         """获取财务指标"""
         return self._call_api_with_retry(
-            "get_financial_data", self._pro.fina_indicator, ts_code=ts_code, start_date=start_date, end_date=end_date
+            "get_financial_data", self.pro.fina_indicator, ts_code=ts_code, start_date=start_date, end_date=end_date
         )
 
     def get_trade_cal(self, exchange: str = "SSE", start_date: str = "", end_date: str = "") -> pd.DataFrame | None:
@@ -154,7 +154,7 @@ class TushareClient:
             params["start_date"] = start_date
         if end_date:
             params["end_date"] = end_date
-        return self._call_api_with_retry("get_trade_cal", self._pro.trade_cal, **params)
+        return self._call_api_with_retry("get_trade_cal", self.pro.trade_cal, **params)
 
     def check_connection(self) -> bool:
         """检查 API 连通性"""

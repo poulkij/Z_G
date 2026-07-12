@@ -11,7 +11,7 @@ import math
 from dataclasses import dataclass, field
 
 from .loop_engine import ShaofuLoopEngine, LoopConfig, LoopTrade
-from .indicators import DailyData, get_kline_data
+from core.indicators import DailyData, get_kline_data
 
 
 @dataclass
@@ -41,8 +41,8 @@ def _calc_metrics(result: ShaofuBacktestResult) -> None:
     """
     从交易列表计算所有统计指标
 
-    Args:
-        result: 回测结果对象（trades 字段需已填充）
+    NOTE: 与 backtest.py 的 _calc_stats + backtest_signals 内联统计重复。
+    如需增加新指标，三处均需同步。未来可提取到 backtest.py 作为共享工具函数。
     """
     trades = result.trades
     if not trades:

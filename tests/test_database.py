@@ -9,13 +9,13 @@ class TestGetDbPath:
     """数据库路径解析测试"""
 
     def test_path_is_absolute(self, mock_env_for_tests):
-        from modules.database import get_db_path
+        from core.database import get_db_path
 
         path = get_db_path()
         assert path.is_absolute()
 
     def test_parent_dir_created(self, mock_env_for_tests):
-        from modules.database import get_db_path
+        from core.database import get_db_path
 
         path = get_db_path()
         assert path.parent.exists()
@@ -25,7 +25,7 @@ class TestGetConnection:
     """数据库连接测试"""
 
     def test_connection_returns_context(self, temp_db):
-        from modules.database import get_connection
+        from core.database import get_connection
 
         with get_connection() as conn:
             assert conn is not None
@@ -34,13 +34,13 @@ class TestGetConnection:
             assert cursor.fetchone()[0] == 1
 
     def test_connection_has_row_factory(self, temp_db):
-        from modules.database import get_connection
+        from core.database import get_connection
 
         with get_connection() as conn:
             assert conn.row_factory is not None
 
     def test_commit_on_success(self, temp_db):
-        from modules.database import get_connection
+        from core.database import get_connection
 
         with get_connection() as conn:
             cursor = conn.cursor()
@@ -52,7 +52,7 @@ class TestGetConnection:
             """)
             cursor.execute("INSERT INTO test_table (id, name) VALUES (1, 'test')")
         # 退出 context 后应该已提交
-        from modules.database import get_connection as gc2
+        from core.database import get_connection as gc2
 
         with gc2() as conn:
             cursor = conn.cursor()
@@ -62,7 +62,7 @@ class TestGetConnection:
             assert row[0] == "test"
 
     def test_rollback_on_error(self, temp_db):
-        from modules.database import get_connection
+        from core.database import get_connection
 
         # 先创建表
         with get_connection() as conn:
@@ -84,7 +84,7 @@ class TestInitDatabase:
     """数据库初始化测试"""
 
     def test_creates_tables(self, temp_db):
-        from modules.database import get_connection
+        from core.database import get_connection
 
         with get_connection() as conn:
             cursor = conn.cursor()
@@ -105,7 +105,7 @@ class TestInitDatabase:
             assert expected.issubset(tables)
 
     def test_creates_indexes(self, temp_db):
-        from modules.database import get_connection
+        from core.database import get_connection
 
         with get_connection() as conn:
             cursor = conn.cursor()
@@ -119,7 +119,7 @@ class TestInitDatabase:
 
     def test_idempotent(self, temp_db):
         """多次调用不应报错"""
-        from modules.database import init_database
+        from core.database import init_database
 
         init_database()
         init_database()  # 第二次不应失败
@@ -130,7 +130,7 @@ class TestLLMResponseLog:
 
     def test_table_exists(self, temp_db):
         """llm_response_log 表应被 init_database 创建"""
-        from modules.database import get_connection
+        from core.database import get_connection
 
         with get_connection() as conn:
             cursor = conn.cursor()
@@ -142,7 +142,7 @@ class TestLLMResponseLog:
 
     def test_indexes_exist(self, temp_db):
         """三个索引都应存在"""
-        from modules.database import get_connection
+        from core.database import get_connection
 
         with get_connection() as conn:
             cursor = conn.cursor()
@@ -157,7 +157,7 @@ class TestLLMResponseLog:
 
     def test_record_llm_response_success(self, temp_db):
         """记录一次成功调用"""
-        from modules.database import record_llm_response, get_llm_response_log
+        from core.database import record_llm_response, get_llm_response_log
 
         record_llm_response(
             ts_code="600519.SH",
@@ -178,7 +178,7 @@ class TestLLMResponseLog:
 
     def test_record_llm_response_failure(self, temp_db):
         """记录一次失败调用"""
-        from modules.database import record_llm_response, get_llm_response_log
+        from core.database import record_llm_response, get_llm_response_log
 
         record_llm_response(
             ts_code="000001.SZ",
@@ -195,7 +195,7 @@ class TestLLMResponseLog:
 
     def test_request_date_defaults_to_today(self, temp_db):
         """不传 request_date 时应使用当天日期"""
-        from modules.database import record_llm_response, get_llm_response_log, get_connection
+        from core.database import record_llm_response, get_llm_response_log, get_connection
 
         record_llm_response(
             ts_code="600519.SH",
@@ -211,7 +211,7 @@ class TestLLMResponseLog:
 
     def test_get_log_filter_by_model(self, temp_db):
         """按模型过滤"""
-        from modules.database import record_llm_response, get_llm_response_log
+        from core.database import record_llm_response, get_llm_response_log
 
         record_llm_response("600519.SH", "MiniMax-M3", 100.0, request_date="2026-06-15")
         record_llm_response("600519.SH", "MiniMax-M2", 200.0, request_date="2026-06-15")
@@ -225,7 +225,7 @@ class TestLLMResponseLog:
 
     def test_stats_aggregation(self, temp_db):
         """日聚合统计"""
-        from modules.database import record_llm_response, get_llm_response_stats
+        from core.database import record_llm_response, get_llm_response_stats
 
         record_llm_response("600519.SH", "MiniMax-M3", 100.0, success=True, request_date="2026-06-15")
         record_llm_response("600519.SH", "MiniMax-M3", 200.0, success=True, request_date="2026-06-15")
@@ -243,7 +243,7 @@ class TestLLMResponseLog:
 
     def test_stats_empty_day(self, temp_db):
         """没有数据的天应返回全 0 统计"""
-        from modules.database import get_llm_response_stats
+        from core.database import get_llm_response_stats
 
         stats = get_llm_response_stats(request_date="2020-01-01")
         assert stats["total_calls"] == 0
@@ -256,14 +256,14 @@ class TestDropAllTables:
     """删除表测试"""
 
     def test_drops_all_tables(self, temp_db):
-        from modules.database import drop_all_tables, init_database
+        from core.database import drop_all_tables, init_database
 
         # 先初始化
         init_database()
         # 再删除
         drop_all_tables()
         # 验证
-        from modules.database import get_connection
+        from core.database import get_connection
 
         with get_connection() as conn:
             cursor = conn.cursor()
@@ -275,7 +275,7 @@ class TestDropAllTables:
             assert len(tables) == 0
 
     def test_reinit_after_drop(self, temp_db):
-        from modules.database import drop_all_tables, init_database
+        from core.database import drop_all_tables, init_database
 
         init_database()
         drop_all_tables()
