@@ -1,14 +1,13 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
 import { fetchWatchlist, scanWatchlist } from '../api/watchlist';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import Badge from '../components/ui/Badge';
+import StockSearchInput from '../components/stock/StockSearchInput';
 
 export default function Dashboard() {
   const navigate = useNavigate();
-  const [searchCode, setSearchCode] = useState('');
 
   const { data: watchlist } = useQuery({
     queryKey: ['watchlist'],
@@ -21,17 +20,6 @@ export default function Dashboard() {
     enabled: false,
   });
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    const code = searchCode.trim().toUpperCase();
-    if (!code) return;
-    let tsCode = code;
-    if (/^\d{6}$/.test(tsCode)) {
-      tsCode = tsCode.startsWith('6') ? `${tsCode}.SH` : `${tsCode}.SZ`;
-    }
-    navigate(`/stock/${tsCode}`);
-  };
-
   return (
     <div className="space-y-6">
       {/* Hero Search */}
@@ -39,21 +27,21 @@ export default function Dashboard() {
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-accent-blue/10 via-transparent to-transparent blur-2xl -z-10" />
         <h1 className="text-4xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-accent-gold via-accent-red to-accent-purple mb-3">Z哥量化终端</h1>
         <p className="text-sm font-medium text-text-muted mb-8 tracking-wide">用系统化思维，捕捉确定性利润</p>
-        <form onSubmit={handleSearch} className="flex items-center gap-3 relative z-10 w-full max-w-lg">
-          <input
-            type="text"
-            value={searchCode}
-            onChange={(e) => setSearchCode(e.target.value)}
-            placeholder="输入股票代码开始分析，如 600487"
-            className="w-full rounded-xl border border-border/60 bg-bg-secondary/80 backdrop-blur-md px-5 py-4 text-base text-text-primary placeholder-text-muted outline-none focus:border-accent-gold/70 focus:ring-4 focus:ring-accent-gold/10 transition-all shadow-xl"
+        <div className="flex items-center gap-3 relative z-10 w-full max-w-lg">
+          <StockSearchInput
+            size="hero"
+            formId="dashboard-stock-search"
+            onNavigate={(tsCode) => navigate(`/stock/${tsCode}`)}
+            className="flex-1"
           />
           <button
             type="submit"
+            form="dashboard-stock-search"
             className="rounded-xl bg-gradient-to-r from-accent-gold to-accent-red px-8 py-4 text-sm font-bold text-white hover:opacity-90 active:scale-95 transition-all shadow-lg shadow-accent-red/20"
           >
             分析
           </button>
-        </form>
+        </div>
       </div>
 
       {/* Quick Stats */}

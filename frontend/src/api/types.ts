@@ -129,11 +129,23 @@ export interface SignalMarker {
   action: string;
 }
 
+// ── 股票搜索 ──
+export interface StockSearchItem {
+  ts_code: string;
+  name: string;
+  industry: string;
+}
+
+export interface StockSearchResponse {
+  results: StockSearchItem[];
+}
+
 // ── 选股 ──
 export interface StrategyInfo {
   alias: string;
   criteria: string;
   description: string;
+  formula: string;
 }
 
 export interface ScreenResult {
@@ -193,34 +205,44 @@ export interface WatchlistScan {
 // ── 回测 ──
 export interface BacktestResult {
   ts_code: string;
-  summary: BacktestSummary;
-  equity_curve: [string, number][];
+  total_trades: number;
+  win_trades: number;
+  loss_trades: number;
+  win_rate: number;
+  profit_factor: number;
+  max_drawdown: number;
+  avg_return: number;
+  total_return: number;
   trades: BacktestTrade[];
 }
 
-export interface BacktestSummary {
-  total_trades: number;
-  win_rate: number;
-  profit_factor: number;
-  total_return: number;
-  max_drawdown: number;
-  sharpe_ratio: number;
-  avg_holding_days: number;
-  annualized_return: number;
-  win_count: number;
-  avg_pnl: number;
-  max_win: number;
-  max_loss: number;
-}
-
 export interface BacktestTrade {
+  ts_code: string;
   entry_date: string;
   entry_price: number;
   exit_date: string | null;
   exit_price: number | null;
-  exit_reason: string;
+  pnl: number;
   pnl_pct: number;
-  holding_days: number;
+  hold_days: number;
+  exit_reason: string;
+}
+
+export interface TuneResult {
+  best_params: Record<string, number>;
+  best_score: number;
+  all_results: Array<Record<string, unknown>>;
+}
+
+export interface HistoricalScreenResult {
+  date: string;
+  total_scanned: number;
+  results: StockScore[];
+}
+
+export interface ScreenerResponse {
+  total: number;
+  results: StockScore[];
 }
 
 // ── 诊断 ──
@@ -281,4 +303,53 @@ export interface CommentaryResponse {
   model_used: string;
   cached: boolean;
   error?: string;
+}
+
+// ── 持仓诊断 ──
+export interface DiagnosisFull {
+  ts_code: string;
+  name: string;
+  price: number;
+  price_position: string;
+  trend_status: string;
+  kdj_j: number;
+  macd_veto: boolean;
+  bbi: number;
+  white_line: number;
+  yellow_line: number;
+  sell_score: number;
+  sell_score_desc: string;
+  exit_signals: Array<Record<string, unknown>>;
+  buy_signals: Array<Record<string, unknown>>;
+  kirin_phase: string;
+  stop_loss: number | null;
+  target_price: number | null;
+  recommendation: string;
+  risk_level: string;
+}
+
+export interface PortfolioDiagnoseResponse {
+  results: DiagnosisFull[];
+}
+
+// ── 训练数据 ──
+export interface TrainingScreenResponse {
+  date: string;
+  total_scanned: number;
+  results: StockScore[];
+}
+
+export interface KLineRangeResponse {
+  ts_code: string;
+  klines: KLineItem[];
+}
+
+export interface KLineItem {
+  date: string;
+  open: number;
+  close: number;
+  high: number;
+  low: number;
+  volume: number;
+  pct_chg: number;
 }

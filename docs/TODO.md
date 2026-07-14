@@ -1,9 +1,25 @@
 # TODO
 
 > Zettaranc Skill 待办清单
-> 更新日期：2026-06-20
-> 当前版本：v3.3.0
+> 更新日期：2026-07-12
+> 当前版本：v4.0.0
 > 状态：✅ 已完成 / ⏳ 进行中 / 📋 待规划
+
+---
+
+## ✅ 已完成（v3.3.1 Web 搜索模糊化 + 选股约束面板）
+
+### 股票搜索改造
+- [x] 后端 `search_stocks` 改用 `re.search` 正则匹配（代码+名称任一命中，IGNORECASE）
+- [x] 新增前端 `StockSearchInput` 通用搜索组件（debounce + 下拉候选 + 键盘导航 + 输入类型识别 + 搜索历史）
+- [x] 替换 Dashboard Hero / Header ⌘K / Watchlist 添加三处搜索入口
+
+### 选股筛选增强
+- [x] `ScreenRequest` 新增 10 个约束字段（5 评分 + 5 基础）
+- [x] `screen_service` 实现两层过滤：评分约束（内存）+ 基础约束（DB 查询）
+- [x] 新增 `STRATEGY_FORMULAS` 字典：11 个战法选股公式文本
+- [x] 前端 `Screener.tsx` 重写：选股公式卡片 + 约束面板（滑块/输入/复选框）+ 分类标签
+- [x] 新增 `tests/test_screen_service.py` 8 个约束过滤用例
 
 ---
 
@@ -134,6 +150,39 @@
 
 ---
 
+## ✅ 已完成（v4.0.0 少妇模拟器完整版）
+
+### Phase 1：宏观择时层 — 活跃市值量化
+- [x] `data/market_timing_windows.json`：7 段多头 + 7 段空头历史窗口（2024-09 至今）
+- [x] `core/timing.py` MarketTiming 模块：多空窗口查询 + 统计 + 单例
+- [x] `LoopConfig` 新增 `timing_enabled` / `timing_data_file` 开关
+- [x] `loop_engine.py` 入场前调用 `_should_trade_by_timing()` 门控
+- [x] 择时门控单元测试 6 例
+
+### Phase 2：自动选股层 — Screener → Engine 热插拔
+- [x] `core/auto_screener.py` AutoScreener：封装 screen_stocks + 沙漏过滤 + 牛绳预筛
+- [x] `ScreenResult` 数据结构 + 单例 + CLI 入口
+
+### Phase 3：ShaofuSimulator 实时引擎
+- [x] `core/simulator.py` ShaofuSimulator：集成 timing + screener + loop_engine
+- [x] 状态机：TIMING → SELECTING → WAITING_B1 → HOLDING → EXITED 循环
+- [x] 每日信号 `DailySignal` + 持仓 `Position` + 报告 `SimulatorReport`
+- [x] 区间回测 `run_backtest()` + 单日处理 `run_day()`
+- [x] 模拟器集成测试 5 例
+
+### Phase 4：S1/S2/S3 卖出体系深度集成
+- [x] `LoopConfig` 新增 `sell_signals_enabled` / `sell_score_min_hold`
+- [x] `_check_sell_signals()`：S1（大绿帽）→ S2（顶背离）→ S3（最后逃生）优先级检测
+- [x] `_check_anti_sell_fly()`：防卖飞评分 ≥4 时覆盖离场，保护利润
+- [x] 卖出体系测试 5 例
+
+### Phase 5：CLI 集成 + 测试覆盖
+- [x] `zt simulate` 子命令：区间回测 + JSON 输出 + 6 个开关
+- [x] 全量测试：754 passed, 43 skipped，0 破坏
+- [x] V4 测试新增 17 例（择时 6 + 卖出 5 + 模拟器 5 + 配置 1）
+
+---
+
 ## ⏳ 进行中
 
 ### Phase 3: SKILL.md 拆分（数据字典外迁 → 心智模型拆分）
@@ -156,7 +205,7 @@
 | **v2.10.0** | CLI 修复 + 脚本薄壳化 + 5 CI job + 501 测试 + 代码审查 | ✅ 已完成 |
 | **v3.0.0** | 编排模式 + 人生/创业蒸馏 + 双维度扩展 | ✅ 已完成 |
 | **v3.1.0** | P3 指标补完（蜈蚣图/牛绳理论/量比战法/沙漏 V9） | ✅ 已完成 |
-| **v4.0.0** | 少妇模拟器完整版（自动择时+选股+买入+卖出闭环回测） | 🎯 长期目标 |
+| **v4.0.0** | 少妇模拟器完整版（自动择时+选股+买入+卖出闭环回测） | ✅ 已完成 |
 
 ---
 

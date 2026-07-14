@@ -9,7 +9,7 @@ from api.schemas import (
 )
 from core.data_access import DataAccess
 
-router = APIRouter(prefix="/api/training", tags=["选股训练"])
+router = APIRouter(tags=["选股训练"])
 
 
 @router.post("/screen", response_model=TrainingScreenResponse)

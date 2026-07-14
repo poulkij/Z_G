@@ -260,6 +260,35 @@ body {
 
 .form-group input[type="date"] { width: auto; }
 
+/* ===== 搜索下拉框 ===== */
+.search-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    margin-top: 4px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    max-height: 280px;
+    overflow-y: auto;
+    z-index: 200;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+}
+
+.search-item {
+    padding: 0.5rem 0.75rem;
+    cursor: pointer;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.search-item:hover {
+    background: var(--bg);
+}
+
 .btn {
     background: var(--accent);
     border: none;

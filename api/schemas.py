@@ -63,6 +63,18 @@ class StockScoreItem(BaseModel):
     rating: str = ""
 
 
+class StockSearchItem(BaseModel):
+    """股票搜索结果项"""
+    ts_code: str
+    name: str = ""
+    industry: str = ""
+
+
+class StockSearchResponse(BaseModel):
+    """股票搜索响应"""
+    results: list[StockSearchItem] = []
+
+
 class StockAnalysisResponse(BaseModel):
     """个股分析完整响应"""
     ts_code: str

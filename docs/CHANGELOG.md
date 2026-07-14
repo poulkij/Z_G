@@ -2,6 +2,65 @@
 
 所有值得记录的变更都会写在这里。格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.0.0/)。
 
+## [v4.0.0] - 2026-07-14
+
+
+> **「v4.0.0：架构升级 — core 包拆分 + FastAPI API 层 + React Web UI。」**
+
+### 核心变更
+
+- **core 包拆分（MAJOR 架构重构）**：
+  - `modules/indicators/` → `core/indicators/`，保留 shim 兼容旧 import
+  - `modules/strategies/` → `core/strategies/`，保留 shim
+  - `knowledge/` → `core/knowledge/`
+  - `modules/screener.py` → `core/screener/` 包（criteria/engine 拆分）
+  - `modules/backtest.py` → `core/backtest/` 包（engine/runner 拆分）
+  - 全仓 import 从 `modules.*` 迁移到 `core.*`
+- **FastAPI API 层（`api/`）**：
+  - `api/app.py` + `api/main.py`：FastAPI 应用骨架，`/api/v1` 前缀，CORS + 全局异常处理 + lifespan
+  - 9 个路由模块：stock / screen / watchlist / trade / diagnosis / backtest / portfolio / training / system / commentary
+  - Pydantic schema + 依赖注入（DataAccess 只读数据层）
+  - `zt-web` / `zt-monitor` 命令入口注册
+- **React Web UI（`frontend/` + `web/`）**：
+  - Dashboard 看板 + 个股分析页（ECharts）+ 选股 + 回测 + 训练 + 持仓 5 大页面
+  - `StockSearchInput` 通用搜索组件（debounce + 下拉候选 + 键盘导航 + ⌘K）
+  - 选股约束面板（5 评分滑块 + 行业/价格/ST/涨停过滤）+ 战法公式卡片
+  - Header 全局搜索 + 搜索历史
+- **新增数据/策略模块**：
+  - `core/data_access.py`：只读 DataAccess 层，统一数据读取入口
+  - `core/historical_screener.py`：历史选股回测
+  - `core/param_tuner.py`：回测参数网格搜索
+- **测试与稳定性**：API 路由 13 用例 + screen_service 8 用例 + SQLite 连接泄漏修复（Windows PermissionError）
+- **版本对齐**：pyproject.toml / SKILL.md / README badge / api 版本号 / AGENTS / TODO 全部统一到 4.0.0
+
+---
+
+## [v3.3.1] - 2026-07-12
+
+
+> **「v3.3.1：Web 搜索模糊化 + 选股约束面板 — 让工具真正可用。」**
+
+### 核心变更
+
+- **股票搜索从全匹配改为正则模糊匹配**：
+  - 后端 `search_stocks` 改用 `re.search` + `re.escape` + `IGNORECASE`，代码/名称任一命中即收录（不再区分输入类型分支）
+  - 新增前端通用搜索组件 `StockSearchInput`：debounce 280ms、下拉候选（代码+名称+行业）、↑↓ 键盘导航、Enter 确认、输入类型正则识别（6 位代码/带后缀/中文）显示提示、支持 `formId` 跨 form 关联外部按钮、支持搜索历史下拉
+  - 替换三处搜索入口：Dashboard Hero 搜索框、Header 全局搜索框（保留 ⌘K + 历史）、Watchlist 添加自选股输入框
+  - 输入 `600487` → 下拉显示候选；输入 `茅台` → 模糊匹配中文；输入 `600487.SH` → Enter 直达
+- **选股筛选新增约束面板 + 战法选股公式展示**：
+  - `ScreenRequest` 新增 10 个约束字段：5 个评分约束（min_score/min_b1_score/min_trend_score/min_volume_score/max_risk_score）+ 5 个基础约束（industry/exclude_st/exclude_limit_up/min_price/max_price）
+  - `screen_service.run_screen` 实现两层过滤：评分约束（纯内存）+ 基础约束（查 stock_basic + daily_kline，一次性查 DB 避免 N+1）
+  - 新增 `STRATEGY_FORMULAS` 字典：11 个战法的选股公式文本（从 `core/screener/criteria.py` 实现提取，含关键条件 + 硬过滤说明）
+  - `StrategyInfo` / `get_strategies()` 返回 `formula` 字段
+  - 前端 `Screener.tsx` 重写：选股公式卡片（等宽字体 pre 块 + 分类标签 + criteria 名 + 硬过滤说明）、约束面板（5 个评分滑块 + 行业输入 + 价格范围 + ST/涨停排除复选框）、约束按钮显示生效约束数 badge、无结果时提示放宽约束
+  - 11 个战法分 4 类标签：买点（B1/B2/B3/超级B1/长安）/ 形态（完美图形/超跌/突破）/ 阶段（建仓波/吸筹）/ 风控（安全）
+- **测试与稳定性**：
+  - 新增 `tests/test_screen_service.py`：8 个用例（ST 排除/保留、行业过滤单/多、价格范围、涨停排除、formula 返回完整性、公式含关键条件标识）
+  - 前端 `tsc -b` + `vite build` 全通过
+  - 后端 41 个相关测试全通过（screener 22 + screen_service 8 + api_screener 3 + api_stock 8）
+
+---
+
 ## [v3.3.0] - 2026-06-20
 
 

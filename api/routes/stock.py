@@ -1,6 +1,8 @@
 """个股分析路由"""
 
-from fastapi import APIRouter, Depends
+import re
+
+from fastapi import APIRouter, Depends, Query
 from api.deps import get_data_access
 from api.schemas import (
     StockAnalysisResponse,
@@ -8,10 +10,12 @@ from api.schemas import (
     IndicatorSnapshot,
     SignalItem,
     StockScoreItem,
+    StockSearchItem,
+    StockSearchResponse,
 )
 from core.data_access import DataAccess
 
-router = APIRouter(prefix="/api/stock", tags=["个股分析"])
+router = APIRouter(prefix="", tags=["个股分析"])
 
 
 @router.get("/{ts_code}", response_model=StockAnalysisResponse)
@@ -122,3 +126,83 @@ def get_stock_signals(ts_code: str, days: int = 120, da: DataAccess = Depends(ge
     except Exception:
         pass
     return signals
+
+
+@router.get("/search/all", response_model=StockSearchResponse)
+def search_stocks(
+    q: str = Query("", description="股票代码或名称关键字（正则匹配，大小写不敏感）"),
+    limit: int = Query(20, ge=1, le=100, description="最大返回数量"),
+    da: DataAccess = Depends(get_data_access),
+):
+    """按代码或名称正则搜索股票（用于选股页搜索框）
+
+    支持以下输入（均使用 re.search 正则匹配，大小写不敏感）：
+    - 6 位数字代码：如 `000807` → 匹配 ts_code（前缀命中 000807.SZ）
+    - 带后缀代码：如 `000807.SZ` 或 `sh` → 匹配 ts_code
+    - 中文名称/简称：如 `云铝`、`茅台` → 匹配 name
+    - 混合：如 `600` → 命中所有 600 开头的代码
+    - 拼音/英文：暂不支持（DB 无拼音字段）
+    """
+    keyword = q.strip()
+    if not keyword:
+        return StockSearchResponse(results=[])
+
+    # 构造正则：转义用户输入避免特殊字符破坏正则，IGNORECASE 便于匹配 SH/SZ
+    # 代码部分去掉后缀（如 "000807.SZ" → "000807"），便于前缀命中
+    code_prefix = keyword.split(".")[0]
+    code_re = re.compile(re.escape(code_prefix), re.IGNORECASE)
+    name_re = re.compile(re.escape(keyword), re.IGNORECASE)
+
+    stocks = da.get_stock_list()
+    matched = []
+
+    for s in stocks:
+        ts_code = s["ts_code"]
+        name = s.get("name", "")
+        # 代码或名称任一正则命中即收录
+        if code_re.search(ts_code) or name_re.search(name):
+            matched.append(s)
+        if len(matched) >= limit:
+            break
+
+    return StockSearchResponse(
+        results=[
+            StockSearchItem(ts_code=m["ts_code"], name=m.get("name", ""), industry=m.get("industry", ""))
+            for m in matched
+        ]
+    )
+
+
+# ── 新前端路由（调 stock_service，返回完整分析数据） ──
+
+
+@router.get("/analyze/{ts_code}")
+def analyze_stock_full(ts_code: str, days: int = 120):
+    """完整分析：指标 + 三波 + 麒麟会 + 战法信号 + 诊断 + 评分（对齐前端 StockAnalysis）"""
+    from api.services import stock_service
+
+    return stock_service.get_full_analysis(ts_code, days=days)
+
+
+@router.get("/analyze/{ts_code}/klines")
+def analyze_stock_klines(ts_code: str, days: int = 120):
+    """K 线图表数据（ECharts 列式格式，对齐前端 KlineChart）"""
+    from api.services import stock_service
+
+    return stock_service.get_kline_chart_data(ts_code, days=days)
+
+
+@router.get("/analyze/{ts_code}/signals")
+def analyze_stock_signals(ts_code: str, days: int = 120):
+    """战法信号列表（对齐前端 StrategySignal[]）"""
+    from api.services import stock_service
+
+    return stock_service.get_signals(ts_code, days=days)
+
+
+@router.get("/score/{ts_code}")
+def get_stock_score(ts_code: str):
+    """综合评分（对齐前端 ScoreDetail）"""
+    from api.services import stock_service
+
+    return stock_service.get_score(ts_code)

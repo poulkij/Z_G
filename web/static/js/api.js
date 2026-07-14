@@ -20,6 +20,20 @@ const API = {
         return res.json();
     },
 
+    async historicalScreener(req) {
+        const res = await fetch("/api/screener/historical", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(req),
+        });
+        return res.json();
+    },
+
+    async searchStocks(q, limit = 20) {
+        const res = await fetch(`/api/stock/search/all?q=${encodeURIComponent(q)}&limit=${limit}`);
+        return res.json();
+    },
+
     async getStockScore(tsCode) {
         const res = await fetch(`/api/screener/score/${tsCode}`);
         return res.json();

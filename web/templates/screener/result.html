@@ -32,8 +32,24 @@
             <label>最大扫描数</label>
             <input type="number" id="max-stocks" value="500" min="10" max="5000" style="width:100px">
         </div>
+        <div>
+            <label>筛选日期（留空=最新）</label>
+            <input type="date" id="screen-date" style="width:150px">
+        </div>
         <button class="btn" onclick="runScreener()">筛选</button>
     </div>
+</div>
+
+<div class="form-group" style="margin-top:1rem;position:relative">
+    <label>搜索股票（输入代码或名称，如 000807、云铝）</label>
+    <div class="stock-search" style="position:relative">
+        <input type="text" id="stock-search-input" placeholder="输入代码或名称..." autocomplete="off" style="width:280px">
+        <button onclick="searchStock()">搜索</button>
+        <div id="search-dropdown" class="search-dropdown" style="display:none"></div>
+    </div>
+    <p style="font-size:0.8rem;color:var(--text-dim);margin-top:0.3rem">
+        代码 6 位数字（如 000807）或名称关键字。回车搜索，点击结果跳转到个股看板。
+    </p>
 </div>
 
 <div id="screener-results" style="margin-top:1rem">

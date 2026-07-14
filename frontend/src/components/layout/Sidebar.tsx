@@ -69,7 +69,7 @@ export default function Sidebar() {
       {/* Footer */}
       {!collapsed && (
         <div className="border-t border-border p-3 text-xs text-text-muted shrink-0">
-          v1.0.0
+          v4.0.0
         </div>
       )}
     </aside>

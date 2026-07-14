@@ -11,6 +11,8 @@ import Screener from './pages/Screener';
 import Watchlist from './pages/Watchlist';
 import Trades from './pages/Trades';
 import Settings from './pages/Settings';
+import Portfolio from './pages/Portfolio';
+import Training from './pages/Training';
 
 // 动态导入:重型页(ECharts 体积大,延迟到首次访问再加载)
 const StockAnalysis = lazy(() => import('./pages/StockAnalysis'));
@@ -59,6 +61,8 @@ export default function App() {
                   </Suspense>
                 }
               />
+              <Route path="/portfolio" element={<Portfolio />} />
+              <Route path="/training" element={<Training />} />
               <Route path="/trades" element={<Trades />} />
               <Route path="/settings" element={<Settings />} />
             </Route>

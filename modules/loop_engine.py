@@ -34,6 +34,7 @@ from core.indicators import (
     detect_double_line_cross,
     detect_trade_signal,
 )
+from core.timing import MarketTiming
 
 
 # ============================================================
@@ -69,6 +70,12 @@ class LoopConfig:
     lu_half: bool = True  # 卤煮减半（站上BBI+连续两根阳线→减半）
     position_pct: float = 0.3  # 单笔仓位比例
     vol_shrink_threshold: float = 0.8  # 缩量判定阈值（当日量 / 前日量 < 此值视为缩量）
+    # V4: 宏观择时门控
+    timing_enabled: bool = False  # 是否启用活跃市值择时过滤（False=不限制，兼容旧回测）
+    timing_data_file: str = ""  # 择时数据文件路径，空串使用默认
+    # V4: 卖出体系深度集成
+    sell_signals_enabled: bool = False  # 是否启用 S1/S2/S3 逃顶信号
+    sell_score_min_hold: int = 4  # 防卖飞评分阈值，>= 此值时覆盖离场信号（保护利润）
 
 
 @dataclass
@@ -200,6 +207,29 @@ class ShaofuLoopEngine:
             config: 策略参数配置，None 则使用默认值
         """
         self.config = config or LoopConfig()
+        # V4: 宏观择时器（按需懒加载）
+        self._timing: MarketTiming | None = None
+        if self.config.timing_enabled:
+            if self.config.timing_data_file:
+                self._timing = MarketTiming(self.config.timing_data_file)
+            else:
+                self._timing = MarketTiming()
+
+    def _should_trade_by_timing(self, trade_date: str) -> bool:
+        """V4 Step 1: 宏观择时门控
+
+        活跃市值多头窗口 = 允许入场
+        空头窗口 = 禁止开新仓
+
+        Args:
+            trade_date: 交易日期（YYYYMMDD）
+
+        Returns:
+            True = 多头可交易 / 择时未启用
+        """
+        if not self._timing:
+            return True  # 未启用择时，放行
+        return self._timing.should_trade(trade_date)
 
     # ----------------------------------------------------------
     # 公开检查方法（供外部测试和调用）
@@ -483,6 +513,60 @@ class ShaofuLoopEngine:
         # 后半段低点 >= 前半段低点（允许 2% 容差）
         return second_low >= first_low * 0.98
 
+    def _check_sell_signals(self, klines: list[DailyData], day_idx: int) -> str | None:
+        """V4: S1/S2/S3 逃顶信号检测
+
+        优先级：S1 > S2 > S3（按紧急程度）
+
+        Args:
+            klines: K 线数据
+            day_idx: 当前日索引
+
+        Returns:
+            离场原因字符串（"S1逃顶" / "S2顶背离" / "S3最后逃生"）或 None
+        """
+        if not self.config.sell_signals_enabled:
+            return None
+        try:
+            from core.strategies.sell_signals import detect_s1, detect_s2, detect_s3
+
+            # S1 优先（丑陋大绿帽，紧急）
+            s1 = detect_s1(klines, day_idx)
+            if s1 is not None:
+                return "S1逃顶"
+            # S2（MACD 顶背离）
+            s2 = detect_s2(klines, day_idx)
+            if s2 is not None:
+                return "S2顶背离"
+            # S3（最后逃生）
+            s3 = detect_s3(klines, day_idx)
+            if s3 is not None:
+                return "S3最后逃生"
+        except Exception:
+            pass
+        return None
+
+    def _check_anti_sell_fly(self, klines: list[DailyData], day_idx: int) -> int:
+        """V4: 防卖飞评分
+
+        评分 ≥4 分时覆盖离场信号，让利润飞一会儿。
+
+        Args:
+            klines: K 线数据
+            day_idx: 当前日索引
+
+        Returns:
+            防卖飞评分 0-5（0=数据不足）
+        """
+        try:
+            from core.indicators.volume_patterns import calculate_sell_score
+
+            sub = klines[: day_idx + 1]
+            score, _, _ = calculate_sell_score(sub)
+            return score
+        except Exception:
+            return 0
+
     # ----------------------------------------------------------
     # 离场检查（共享逻辑，消除 run_stock / process_day 重复）
     # ----------------------------------------------------------
@@ -516,12 +600,25 @@ class ShaofuLoopEngine:
         if self._check_dead_cross_exit(klines, day_idx):
             return None, self._close_trade(trade, klines[day_idx].trade_date, current_price, "白线死叉黄线", pnl_pct)
 
+        # V4: S1/S2/S3 逃顶信号（在最少持仓保护之前，因为逃顶是紧急信号）
+        if self.config.sell_signals_enabled:
+            sell_reason = self._check_sell_signals(klines, day_idx)
+            if sell_reason:
+                # 防卖飞评分 ≥ 阈值时覆盖离场（让利润飞）
+                if self._check_anti_sell_fly(klines, day_idx) >= self.config.sell_score_min_hold:
+                    trade.entry_reason += f" [{sell_reason}被防卖飞覆盖]"
+                    return trade, None
+                return None, self._close_trade(trade, klines[day_idx].trade_date, current_price, sell_reason, pnl_pct)
+
         # 最少持仓天数保护
         if trade.holding_days < self.config.min_holding_days:
             return trade, None
 
         # Step 6: 白线两日破位
         if self._check_white_line_exit_internal(klines, day_idx):
+            # V4: 防卖飞评分 ≥ 阈值时覆盖白线离场
+            if self._check_anti_sell_fly(klines, day_idx) >= self.config.sell_score_min_hold:
+                return trade, None
             return None, self._close_trade(trade, klines[day_idx].trade_date, current_price, "白线跌破", pnl_pct)
 
         # Step 5: 卤煮止盈
@@ -562,6 +659,9 @@ class ShaofuLoopEngine:
 
         for day_idx in range(30, len(klines)):
             if current_trade is None:
+                # V4 Step 1: 宏观择时门控 — 空头窗口禁止开新仓
+                if not self._should_trade_by_timing(klines[day_idx].trade_date):
+                    continue
                 signal = self._check_entry_internal(klines, day_idx)
                 if signal is not None:
                     entry_price = klines[day_idx].close
@@ -604,6 +704,9 @@ class ShaofuLoopEngine:
             return current_trade, None
 
         if current_trade is None:
+            # V4 Step 1: 宏观择时门控
+            if not self._should_trade_by_timing(klines[day_idx].trade_date):
+                return None, None
             signal = self._check_entry_internal(klines, day_idx)
             if signal is not None:
                 entry_price = klines[day_idx].close

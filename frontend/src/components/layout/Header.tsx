@@ -1,7 +1,8 @@
-import { useState, useRef, useMemo } from 'react';
+import { useRef, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAppStore } from '../../stores/appStore';
 import { useGlobalShortcuts } from '../../lib/hooks';
+import StockSearchInput from '../stock/StockSearchInput';
 
 export default function Header() {
   const navigate = useNavigate();
@@ -10,8 +11,7 @@ export default function Header() {
   const sidebarCollapsed = useAppStore((s) => s.sidebarCollapsed);
   const searchHistory = useAppStore((s) => s.searchHistory);
   const addSearchHistory = useAppStore((s) => s.addSearchHistory);
-  const [input, setInput] = useState('');
-  const [historyOpen, setHistoryOpen] = useState(false);
+  const clearSearchHistory = useAppStore((s) => s.clearSearchHistory);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const isDashboard = location.pathname === '/';
@@ -35,19 +35,9 @@ export default function Header() {
     ),
   );
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    const code = input.trim();
-    if (!code) return;
-    // 自动补全后缀
-    let tsCode = code.toUpperCase();
-    if (/^\d{6}$/.test(tsCode)) {
-      tsCode = tsCode.startsWith('6') ? `${tsCode}.SH` : `${tsCode}.SZ`;
-    }
+  const goStock = (tsCode: string) => {
     addSearchHistory(tsCode);
     navigate(`/stock/${tsCode}`);
-    setInput('');
-    setHistoryOpen(false);
   };
 
   return (
@@ -63,54 +53,25 @@ export default function Header() {
         </button>
         {/* 全局搜索框:Dashboard 页用 Hero 搜索框,这里隐藏避免重复 */}
         {!isDashboard && (
-          <form onSubmit={handleSearch} className="flex items-center gap-2 relative">
-            <input
-              ref={inputRef}
-              type="text"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onFocus={() => setHistoryOpen(true)}
-              onBlur={() => setTimeout(() => setHistoryOpen(false), 150)}
-              placeholder="输入股票代码，如 600487 或 600487.SH (⌘K)"
-              className="w-72 rounded border border-border bg-bg-primary px-3 py-1.5 text-sm text-text-primary placeholder-text-muted outline-none focus:border-accent-gold transition-colors"
+          <div className="flex items-center gap-2 relative w-80">
+            <StockSearchInput
+              inputRef={inputRef}
+              formId="header-stock-search"
+              className="flex-1"
+              placeholder="输入代码或中文简称 (⌘K)"
+              onNavigate={goStock}
+              history={searchHistory}
+              onHistoryPick={goStock}
+              onClearHistory={clearSearchHistory}
             />
-            {historyOpen && searchHistory.length > 0 && (
-              <div className="absolute top-full mt-1 left-0 w-72 rounded-md border border-border bg-bg-secondary shadow-lg z-50 overflow-hidden">
-                <div className="px-3 py-1.5 text-xs text-text-muted border-b border-border/40 flex items-center justify-between">
-                  <span>最近查询</span>
-                  <button
-                    type="button"
-                    onMouseDown={(e) => { e.preventDefault(); useAppStore.getState().clearSearchHistory(); }}
-                    className="text-text-muted hover:text-accent-red transition-colors"
-                  >
-                    清除
-                  </button>
-                </div>
-                {searchHistory.slice(0, 6).map((code) => (
-                  <button
-                    key={code}
-                    type="button"
-                    onMouseDown={(e) => {
-                      e.preventDefault();
-                      setInput(code);
-                      navigate(`/stock/${code}`);
-                      setInput('');
-                      setHistoryOpen(false);
-                    }}
-                    className="w-full text-left px-3 py-1.5 text-sm font-mono text-text-secondary hover:bg-bg-hover hover:text-accent-gold transition-colors"
-                  >
-                    {code}
-                  </button>
-                ))}
-              </div>
-            )}
             <button
               type="submit"
-              className="rounded bg-accent-gold/20 px-3 py-1.5 text-sm text-accent-gold hover:bg-accent-gold/30 transition-colors"
+              form="header-stock-search"
+              className="rounded bg-accent-gold/20 px-3 py-1.5 text-sm text-accent-gold hover:bg-accent-gold/30 transition-colors shrink-0"
             >
               分析
             </button>
-          </form>
+          </div>
         )}
       </div>
       <div className="text-xs text-text-muted flex items-center gap-3">

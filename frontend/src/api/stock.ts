@@ -1,5 +1,5 @@
 import api from './client';
-import type { StockAnalysis, KlineChart, CommentaryResponse } from './types';
+import type { StockAnalysis, KlineChart, CommentaryResponse, StockSearchItem } from './types';
 
 export async function fetchStockAnalysis(tsCode: string, days = 120): Promise<StockAnalysis> {
   const { data } = await api.get<StockAnalysis>(`/stock/analyze/${tsCode}`, { params: { days } });
@@ -24,4 +24,11 @@ export async function fetchScore(tsCode: string) {
 export async function fetchCommentary(tsCode: string, days = 120): Promise<CommentaryResponse> {
   const { data } = await api.post<CommentaryResponse>(`/commentary/${tsCode}`, null, { params: { days }, timeout: 120000 });
   return data;
+}
+
+export async function searchStocks(q: string, limit = 10): Promise<StockSearchItem[]> {
+  const { data } = await api.get<{ results: StockSearchItem[] }>('/stock/search/all', {
+    params: { q, limit },
+  });
+  return data.results;
 }

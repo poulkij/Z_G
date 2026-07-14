@@ -13,7 +13,7 @@ def test_backtest_post(temp_db):
         write_klines_to_db(conn, rows)
 
     client = TestClient(app)
-    response = client.post("/api/backtest", json={
+    response = client.post("/api/v1/backtest", json={
         "ts_code": "600519.SH", "days": 120,
         "stop_loss_pct": 0.07, "take_profit_pct": 0.15,
     })
@@ -32,7 +32,7 @@ def test_backtest_tune(temp_db):
         write_klines_to_db(conn, rows)
 
     client = TestClient(app)
-    response = client.post("/api/backtest/tune", json={
+    response = client.post("/api/v1/backtest/tune", json={
         "ts_code": "600519.SH",
         "param_grid": {"stop_loss_pct": [0.05, 0.07], "take_profit_pct": [0.10, 0.15]},
         "days": 120,
@@ -53,7 +53,7 @@ def test_backtest_screener(temp_db):
         write_klines_to_db(conn, rows)
 
     client = TestClient(app)
-    response = client.post("/api/backtest/screener", json={
+    response = client.post("/api/v1/backtest/screener", json={
         "date_range": {"start": "20250301", "end": "20250601"},
         "criteria": {"min_score": 0, "strategies": []},
     })

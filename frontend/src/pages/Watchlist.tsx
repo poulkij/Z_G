@@ -7,11 +7,12 @@ import Button from '../components/ui/Button';
 import Badge from '../components/ui/Badge';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 import ApiErrorState from '../components/ui/ApiErrorState';
+import StockSearchInput from '../components/stock/StockSearchInput';
 
 export default function Watchlist() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const [newCode, setNewCode] = useState('');
+  const [selectedCode, setSelectedCode] = useState('');
   const [newTags, setNewTags] = useState('');
 
   const { data: watchlist, isLoading, isError, error, refetch } = useQuery({
@@ -29,7 +30,7 @@ export default function Watchlist() {
     mutationFn: (code: string) => addToWatchlist(code, newTags),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['watchlist'] });
-      setNewCode('');
+      setSelectedCode('');
       setNewTags('');
     },
   });
@@ -68,13 +69,17 @@ export default function Watchlist() {
       {/* Add */}
       <Card title="添加自选股">
         <div className="flex flex-wrap items-center gap-3">
-          <input
-            type="text"
-            value={newCode}
-            onChange={(e) => setNewCode(e.target.value)}
-            placeholder="股票代码，如 600487.SH"
-            className="min-w-0 flex-1 basis-48 rounded border border-border bg-bg-primary px-3 py-1.5 text-sm text-text-primary placeholder-text-muted outline-none focus:border-accent-gold"
+          <StockSearchInput
+            formId="watchlist-add-search"
+            className="min-w-0 flex-1 basis-64"
+            placeholder="输入 6 位代码或中文简称搜索"
+            onSelect={(tsCode) => setSelectedCode(tsCode)}
           />
+          {selectedCode && (
+            <span className="text-sm font-mono text-accent-gold bg-bg-hover/60 px-2 py-1 rounded">
+              已选: {selectedCode}
+            </span>
+          )}
           <input
             type="text"
             value={newTags}
@@ -82,7 +87,11 @@ export default function Watchlist() {
             placeholder="标签（逗号分隔）"
             className="w-48 rounded border border-border bg-bg-primary px-3 py-1.5 text-sm text-text-primary placeholder-text-muted outline-none focus:border-accent-gold"
           />
-          <Button onClick={() => addMutation.mutate(newCode)} disabled={!newCode.trim()} className="shrink-0">
+          <Button
+            onClick={() => selectedCode && addMutation.mutate(selectedCode)}
+            disabled={!selectedCode}
+            className="shrink-0"
+          >
             添加
           </Button>
         </div>

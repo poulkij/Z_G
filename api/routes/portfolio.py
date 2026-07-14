@@ -5,7 +5,7 @@ from api.schemas import (
     PortfolioDiagnoseRequest, PortfolioDiagnoseResponse, DiagnosisResponse,
 )
 
-router = APIRouter(prefix="/api/portfolio", tags=["持仓诊断"])
+router = APIRouter(tags=["持仓诊断"])
 
 
 @router.post("/diagnose", response_model=PortfolioDiagnoseResponse)

@@ -635,6 +635,74 @@ def cmd_track(args):
                     print(f"  {strategy}: {count}只")
 
 
+def cmd_simulate(args):
+    """V4 少妇模拟器（自动择时+选股+买入+卖出闭环回测）"""
+    import json
+    from core.simulator import ShaofuSimulator, SimulatorConfig
+
+    cfg = SimulatorConfig(
+        timing_enabled=not args.no_timing,
+        screen_strategy=args.strategy,
+        screen_max_per_day=args.max,
+        max_concurrent=args.max_concurrent,
+        sandglass_min=0 if args.no_sandglass else 60,
+        bull_rope_filter=not args.no_bullrope,
+        sell_signals_enabled=not args.no_sell_signals,
+    )
+    sim = ShaofuSimulator(cfg)
+    report = sim.run_backtest(args.start, args.end)
+
+    if args.json:
+        data = {
+            "start_date": report.start_date,
+            "end_date": report.end_date,
+            "total_days": report.total_days,
+            "trading_days": report.trading_days,
+            "bull_days": report.bull_days,
+            "bear_days": report.bear_days,
+            "total_trades": report.total_trades,
+            "win_trades": report.win_trades,
+            "loss_trades": report.loss_trades,
+            "win_rate": round(report.win_rate, 4),
+            "total_return": round(report.total_return, 4),
+            "max_drawdown": round(report.max_drawdown, 4),
+            "avg_hold_days": round(report.avg_hold_days, 1),
+            "final_capital": round(report.final_capital, 0),
+            "trades": [
+                {
+                    "ts_code": t.ts_code,
+                    "entry_date": t.entry_date,
+                    "exit_date": t.exit_date,
+                    "entry_price": t.entry_price,
+                    "exit_price": t.exit_price,
+                    "pnl_pct": round(t.pnl_pct, 2),
+                    "exit_reason": t.exit_reason,
+                    "holding_days": t.holding_days,
+                }
+                for t in report.all_trades
+            ],
+        }
+        print(json.dumps(data, ensure_ascii=False, indent=2))
+        return
+
+    # 人类可读输出
+    print(sim.report())
+    print(f"\n{'=' * 60}")
+    print(f"V4 少妇模拟器回测结果")
+    print(f"{'=' * 60}")
+    print(f"区间:       {report.start_date} → {report.end_date}")
+    print(f"总天数:     {report.total_days} (交易日 {report.trading_days})")
+    print(f"多头天数:   {report.bull_days}")
+    print(f"空头天数:   {report.bear_days}")
+    print(f"总交易:     {report.total_trades}")
+    print(f"胜率:       {report.win_rate:.1%}")
+    print(f"总收益:     {report.total_return:+.2%}")
+    print(f"最大回撤:   {report.max_drawdown:.2%}")
+    print(f"平均持仓:   {report.avg_hold_days:.1f} 天")
+    print(f"最终资金:   {report.final_capital:.0f}")
+    print(f"{'=' * 60}")
+
+
 def main():
     parser = argparse.ArgumentParser(
         prog="zt",
@@ -658,6 +726,7 @@ def main():
   zt daily
   zt sync init
   zt sync sync 600487.SH
+  zt simulate 20240924 20260707
         """,
     )
 
@@ -780,6 +849,19 @@ def main():
     p_monitor.add_argument("--no-push", action="store_true", help="关闭推送通知")
     p_monitor.add_argument("--json", action="store_true", help="JSON输出")
 
+    # ── simulate（V4 少妇模拟器）──
+    p_sim = subparsers.add_parser("simulate", help="V4 少妇模拟器（自动择时+选股+买卖闭环回测）")
+    p_sim.add_argument("start", help="起始日期 YYYYMMDD")
+    p_sim.add_argument("end", nargs="?", default="", help="结束日期 YYYYMMDD（默认今天）")
+    p_sim.add_argument("--strategy", default="b1", help="选股策略（b1/perfect/breakout...）")
+    p_sim.add_argument("--max", type=int, default=20, help="每日最多候选数")
+    p_sim.add_argument("--max-concurrent", type=int, default=5, help="最多同时持仓")
+    p_sim.add_argument("--no-timing", action="store_true", help="关闭宏观择时门控")
+    p_sim.add_argument("--no-sandglass", action="store_true", help="关闭沙漏评分过滤")
+    p_sim.add_argument("--no-bullrope", action="store_true", help="关闭牛绳趋势预筛")
+    p_sim.add_argument("--no-sell-signals", action="store_true", help="关闭 S1/S2/S3 逃顶信号")
+    p_sim.add_argument("--json", action="store_true", help="JSON输出")
+
     args = parser.parse_args()
 
     # 调度表
@@ -799,6 +881,7 @@ def main():
         "track": cmd_track,
         "self-optimize": cmd_self_optimize,
         "monitor": cmd_monitor,
+        "simulate": cmd_simulate,
     }
     handlers[args.command](args)
 

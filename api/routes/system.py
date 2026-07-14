@@ -22,7 +22,7 @@ def health_check():
         "status": "ok",
         "data_mode": settings.data_mode,
         "db_exists": db_exists,
-        "version": "1.0.0",
+        "version": "4.0.0",
     }
 
 

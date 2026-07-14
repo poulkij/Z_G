@@ -24,7 +24,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="Z哥量化 API",
     description="zettaranc 量化交易工具 REST API",
-    version="1.0.0",
+    version="4.0.0",
     lifespan=lifespan,
 )
 
@@ -52,20 +52,26 @@ async def global_exception_handler(request: Request, exc: Exception):
 # ── 注册路由 ──
 from api.routes.stock import router as stock_router
 from api.routes.screen import router as screen_router
+from api.routes.screener import router as screener_router
 from api.routes.watchlist import router as watchlist_router
 from api.routes.diagnosis import router as diagnosis_router
+from api.routes.portfolio import router as portfolio_router
 from api.routes.backtest import router as backtest_router
 from api.routes.trade import router as trade_router
+from api.routes.training import router as training_router
 from api.routes.system import router as system_router
 from api.routes.commentary import router as commentary_router
 
 prefix = settings.api_prefix
 app.include_router(stock_router, prefix=f"{prefix}/stock", tags=["stock"])
 app.include_router(screen_router, prefix=f"{prefix}/screen", tags=["screen"])
+app.include_router(screener_router, prefix=f"{prefix}/screener", tags=["选股筛选"])
 app.include_router(watchlist_router, prefix=f"{prefix}/watchlist", tags=["watchlist"])
 app.include_router(diagnosis_router, prefix=f"{prefix}/diagnosis", tags=["diagnosis"])
+app.include_router(portfolio_router, prefix=f"{prefix}/portfolio", tags=["持仓诊断"])
 app.include_router(backtest_router, prefix=f"{prefix}/backtest", tags=["backtest"])
 app.include_router(trade_router, prefix=f"{prefix}/trade", tags=["trade"])
+app.include_router(training_router, prefix=f"{prefix}/training", tags=["选股训练"])
 app.include_router(system_router, prefix=f"{prefix}/system", tags=["system"])
 app.include_router(commentary_router, prefix=f"{prefix}", tags=["commentary"])
 

@@ -7,7 +7,7 @@ from api.schemas import (
     ScreenResultResponse, StockScoreItem, TradeItem,
 )
 
-router = APIRouter(prefix="/api/backtest", tags=["回测"])
+router = APIRouter(prefix="", tags=["回测"])
 
 
 class BacktestRequest(BaseModel):
