@@ -4,7 +4,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-blueviolet)](https://claude.ai/code)
-[![v3.1.1](https://img.shields.io/badge/version-3.1.1-green)](docs/CHANGELOG.md)
+[![v4.0.0](https://img.shields.io/badge/version-4.0.0-green)](docs/CHANGELOG.md)
 
 
 <br>
@@ -29,12 +29,14 @@
 
 | 数据表 | 行数 | 说明 |
 |--------|------|------|
-| stock_basic | 5,525 | 全量 A 股基本信息 |
-| daily_kline | 25,591 | 测试股票 2 年 K 线（可增量同步至全量） |
-| indicator_cache | 6,360 | 60+ 技术指标每日快照 |
-| moneyflow | 207,361 | 全市场资金流向（60 天） |
-| financial_data | 2,733 | 财报数据（含 PE/PB/PS） |
-| tushare_indicator_cache | 12,554 | Tushare 官方指标（diff 验证用） |
+| stock_basic | 5,624 | 全量 A 股基本信息 |
+| daily_kline | 3,599,798 | 全市场日线 K 线（~3.6M 行） |
+| indicator_cache | 待重算 | 60+ 技术指标每日快照（按需重算） |
+| moneyflow | 待同步 | 全市场资金流向 |
+| financial_data | 待同步 | 财报数据（含 PE/PB/PS） |
+| tushare_indicator_cache | 待同步 | Tushare 官方指标（diff 验证用） |
+
+> 数据库总大小约 1GB，15 张表。部分表需通过 `python -m modules.data_sync sync --indicators` 重新计算。
 
 ### 六大核心能力
 
@@ -147,8 +149,8 @@ TUSHARE_API_URL=中转API地址
 ### 3. 初始化
 
 ```bash
-# 创建数据库（8张表）
-python -m modules.database
+# 创建数据库（15张表）
+python -m core.database
 
 # 同步股票基本信息（5525只，只需执行一次）
 python -m modules.data_sync sync
@@ -160,7 +162,7 @@ python -m modules.data_sync sync --ts_code 600487.SH --days 120
 ### 4. 验证
 
 ```bash
-# 运行测试（572 passed, 10 skipped）
+# 运行测试（49 文件，835 用例）
 python -m pytest tests/ -v
 
 # 分析一只股票
@@ -404,67 +406,42 @@ for k in klines[-5:]:
 ### 项目结构
 
 ```
-zettaranc-skill/
+zettaranc-perspective/
 ├── SKILL.md                    # 核心 Skill 文件（LLM 角色扮演协议）
-├── README.md                   # 本文件
-├── CHANGELOG.md                # 版本变更日志
-├── AGENTS.md                   # AI Agent 开发指南
-├── docs/
-│   ├── USER_GUIDE.md           # 详细使用手册与操作手册
-│   ├── CONFIG_GUIDE.md         # 配置指南（v2.8.0 新增）
-│   └── CHANGELOG.md            # 版本变更日志
-├── .env / .env.example         # 本地配置
-├── rules/                      # 意图识别规则与角色框架（v2.8.0 新增）
-│   ├── intent_rules.yaml       # 意图匹配规则（keywords + patterns）
-│   ├── career_prompt.md        # Z哥职业决策框架
-│   └── life_prompt.md          # Z哥人生决策框架
-├── data/
-│   └── stock_data.db           # SQLite 数据库（8张表）
-├── modules/                    # Python 数据层（~11800 行）
-│   ├── tushare_client.py       # Tushare API 封装
-│   ├── database.py             # SQLite 管理（8张表 + 事务上下文）
-│   ├── data_sync.py            # 数据同步（增量/全量，限流120次/分）
-│   ├── indicators/             # 技术指标引擎（60+指标，6子模块）
-│   │   ├── core.py             # 基础类型 + 数学工具 + 核心指标
-│   │   ├── price_patterns.py   # 价格形态（双线/单针/砖型图/B1B2B3/三波理论）
-│   │   ├── volume_patterns.py  # 量价信号（卖出评分/交易信号/出货五式）
-│   │   ├── wave_theory.py      # 三波理论识别（建仓/拉升/冲刺波）
-│   │   ├── kirin_detector.py   # 麒麟会四阶段（吸筹/拉升/派发/回落）
-│   │   └── data_layer.py       # 数据接入 + 缓存层 + 可视化
+├── README.md / AGENTS.md / CLAUDE.md / GEMINI.md / CONTEXT.md
+├── pyproject.toml              # 包定义 + zt/zt-web/zt-monitor 命令入口
+├── core/                       # ★ 核心领域层（v4.0.0 从 modules/ 拆出，实际计算在此）
+│   ├── database.py             # SQLite 管理（15张表 + 事务上下文 + CRUD）
+│   ├── data_access.py          # 只读 DataAccess 层（Web/回测/训练共用）
+│   ├── domain/profile.py       # StockProfile / IndicatorResult / StockScore 数据类
+│   ├── indicators/             # 技术指标引擎（60+指标，含 price_patterns/ 子包）
 │   ├── strategies/             # 30+ 战法识别引擎（6 子模块）
-│   ├── screener.py             # 选股评分体系（含蜈蚣图/沙漏/牛绳过滤）
-│   ├── backtest.py             # 策略组合回测框架
-│   ├── backtest_six_step.py    # 少妇战法六步闭环回测
-│   ├── loop_engine.py          # 六步闭环状态机（择时→选股→B1→止损→卤煮→BBI离场）
-│   ├── portfolio_diagnosis.py  # 持股检查端到端（含蜈蚣图/牛绳/沙漏诊断）
-│   ├── watchlist.py            # 自选股观察池
-│   ├── cli.py                  # 命令行工具入口（analyze/screen/backtest/trade/daily）
-│   ├── cli_commands.py         # 扩展命令（backtest/trade/daily）
-│   ├── intent_router.py        # 意图识别与路由（v2.8.0 新增）
-│   ├── knowledge_retriever.py  # 向量知识库检索适配器（v2.8.0 新增）
-│   ├── intent_chat.py          # 意图聊天界面（v2.8.0 新增）
-│   ├── llm_providers.py        # LLM 提供商（v2.8.0 新增）
-│   ├── trade_parser.py         # 口语化输入解析
-│   ├── trade_manager.py        # 交易记录 CRUD
-│   ├── trade_reviewer.py       # 交割单数据准备层（给 LLM 用）
-│   ├── setup_wizard.py         # 初始化配置向导
-│   └── trade_reviewer.py       # 交割单数据准备层（含 Z 哥话术常量）
-├── knowledge/                  # 知识文档（14篇交易体系）
-├── tests/                      # 单元测试（pytest，543 用例，24 个测试文件）
-├── scripts/                    # 工具脚本（薄壳，业务逻辑在 modules/）
-│   ├── _common.py              # 共享工具（load_watchlist 等）
-│   ├── sync_watchlist.py       # 同步缺失的自选股 K 线
-│   ├── sync_and_compute.py     # 一站式同步 + 指标计算
-│   ├── batch_compute_indicators.py  # 批量计算指标缓存
-│   ├── generate_report.py      # 生成 Z 哥量化评估报告
-│   └── fetch_tushare_data.py   # Tushare 数据抓取（DEPRECATED）
+│   ├── screener/               # 选股评分包（criteria/b1_score/trend/volume/risk）
+│   ├── backtest/               # 回测包（engine/historical_screener/param_tuner）
+│   └── knowledge/              # 知识文档（29 篇，含 macro/strategies/reference 子目录）
+├── modules/                    # CLI / 数据同步 / 交易 / 意图 / LLM / 监控
+│   ├── cli.py / cli_commands.py    # zt 命令入口
+│   ├── tushare_client.py / data_sync.py   # Tushare + 同步
+│   ├── trade_parser.py / trade_manager.py / trade_reviewer.py  # 交易记录
+│   ├── portfolio_diagnosis.py / watchlist.py / report.py
+│   ├── backtest_six_step.py / loop_engine.py  # 少妇六步闭环
+│   ├── intent_router.py / intent_chat.py / llm_providers.py
+│   ├── 5 个 shim（database/indicators/strategies/screener/backtest → core/）
+│   └── self_optimizer/         # 自优化子包
+├── api/                        # FastAPI 接口层（/api/v1，11 路由 + 6 service）
+├── frontend/                   # React Web UI（Vite :5173，8 页面）
+├── web/                        # 旧 Jinja 模板（已被 frontend/ 取代，保留兼容）
+├── data/                       # SQLite 数据库（stock_data.db ~1GB，不入库）
+├── tests/                      # 单元测试（pytest，49 文件，835 用例）
+├── scripts/                    # 工具脚本（薄壳，业务逻辑在 core/modules/）
 ├── corpus/                     # 语料采集与质检工具
-│   ├── quality_check.py        # SKILL.md 质量自动检查（8 项）
-│   └── ...                     # 批量下载/转写/合并工具
-└── references/                 # 调研提炼文件
+├── rules/                      # 意图识别规则与角色框架
+└── references/research/        # 11 份调研提炼文件
 ```
 
 ### 数据库表结构
+
+SQLite 数据库包含 **15 张表**（`core/database.py` 中定义，`data/stock_data.db` ~1GB）：
 
 | 表名 | 用途 | 关键字段 |
 |------|------|---------|
@@ -475,7 +452,14 @@ zettaranc-skill/
 | `financial_data` | 财务报表 | revenue, net_profit, total_assets, pe, pb, ps |
 | `trade_signals` | 交易信号记录 | signal_type, signal_score, signal_price |
 | `trade_records` | 交易记录 | action, price, quantity, reason, zg_review |
+| `sync_log` | 数据同步日志 | data_type, last_date, status |
 | `watchlist` | 自选股观察池 | ts_code, name, tags, add_date |
+| `tushare_indicator_cache` | Tushare 官方指标（diff 验证） | macd_dif, rsi_6, kdj_k, boll_mid |
+| `llm_response_log` | LLM 响应耗时日志 | ts_code, request_date, model, response_time_ms |
+| `tracking_pool_self` | 追踪池 | — |
+| `tracking_records_self` | 追踪记录 | — |
+| `monthly_reviews_self` | 月度复盘 | — |
+| `strategy_performance_self` | 策略表现 | — |
 
 ### 回测数据（v3.1.0 真实数据验证）
 
@@ -623,7 +607,9 @@ zettaranc ❯ 万科A，跑了250天的回测：
 
 | 版本 | 核心变化 |
 |------|---------|
-| **v3.1.0** | P3 指标补完（蜈蚣图/牛绳/量比战法/沙漏V9）、少妇六步闭环引擎、CLI --json 输出 + backtest/trade/daily 新命令、screener 集成新指标、真实数据回测验证 |
+| **v4.0.0** | 架构升级：core 包拆分（indicators/screener/strategies/knowledge 迁入 core/）、FastAPI API 层（/api/v1 全路由）、React Web UI（看板/选股/回测/训练/持仓）、DataAccess 只读数据层、历史选股 + 参数调优模块 |
+| **v3.3.1** | Web 搜索模糊化（正则匹配）+ 选股约束面板（10 约束字段）+ 战法选股公式展示 |
+| **v3.3.0** | Skill-Schema-V2 合规改造（路由/契约/运行时/安全四表面）+ 知识文件运行时元数据 |
 | **v3.0.0** | 编排模式 + 人生/创业蒸馏 + 双维度扩展 + 14 条决策启发式 |
 | **v2.10.0** | CLI 3 bug 修复 + zt 统一入口、6 脚本薄壳化（-94%）、5 CI job + pre-commit 护栏、501 测试、代码审查、废弃模块清理 |
 | **v2.9.0** | 60x 指标计算提速（Pandas 向量化）、10x-50x 写入提速（executemany）、多线程并发拉取、模块解耦 |

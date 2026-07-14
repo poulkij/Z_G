@@ -2,7 +2,7 @@
 
 ## Data Profile
 
-**StockProfile** — A quantitative snapshot of one stock at one point in time. Contains the 15 most commonly shared fields: ts_code, name, trade_date, close, pct_chg, and core technical indicators (KDJ, MACD, RSI, MA, Bollinger, vol_ratio). Consumed by all scoring and reporting modules. Lives in `modules/profile.py`.
+**StockProfile** — A quantitative snapshot of one stock at one point in time. Contains the 15 most commonly shared fields: ts_code, name, trade_date, close, pct_chg, and core technical indicators (KDJ, MACD, RSI, MA, Bollinger, vol_ratio). Consumed by all scoring and reporting modules. Lives in `core/domain/profile.py`.
 
 - **Avoid**: "stock data", "stock info", "stock result" — use "profile" to mean this specific snapshot type.
 
@@ -10,7 +10,7 @@
 
 - **Avoid**: "signal" (that's a trading decision, not a computed value).
 
-**Score** — A 0-100 rating assessing one dimension of a stock (trend, volume, risk, B1 opportunity). The `StockScore` dataclass extends `StockProfile` with composite scoring fields. Produced by `score_stock()` in `screener.py`.
+**Score** — A 0-100 rating assessing one dimension of a stock (trend, volume, risk, B1 opportunity). The `StockScore` dataclass extends `StockProfile` with composite scoring fields. Produced by `score_stock()` in `core/screener/`.
 
 - **Avoid**: "rating", "grade" — use "score".
 
@@ -24,7 +24,7 @@
 
 ## Execution Pipeline
 
-**analyze_stock** — The 28-step indicator computation pipeline in `data_layer.py`. Takes `(ts_code, days)` → returns `IndicatorResult`. This is the *only* function with this name after the refactor.
+**analyze_stock** — The 28-step indicator computation pipeline in `core/indicators/data_layer.py`. Takes `(ts_code, days)` → returns `IndicatorResult`. This is the *only* function with this name after the refactor.
 
 **score_stock** — (Formerly `screener.analyze_stock`) Takes `(ts_code, klines=None)` → returns `StockScore`. Multi-dimensional scoring (B1, trend, volume, risk) on top of raw indicators.
 

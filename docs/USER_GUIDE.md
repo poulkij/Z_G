@@ -69,12 +69,12 @@ SKILL.md（LLM 角色层：Z 哥视角点评、多轮问诊、表达 DNA）
 
 | 层级 | 技术 |
 |------|------|
-| 数据管道 | Python 3.14（标准库 + sqlite3 + pathlib + dataclasses + enum） |
-| 外部数据 | tushare Pro API（中转 https://tt.xiaodefa.cn） |
-| 数据库 | SQLite（本地文件，8 张表 + 索引） |
+| 数据管道 | Python 3.10+（标准库 + sqlite3 + pathlib + dataclasses + enum） |
+| 外部数据 | tushare Pro API（支持中转 URL，从环境变量读取） |
+| 数据库 | SQLite（本地文件，15 张表 + 索引） |
 | 数据处理 | pandas（Tushare 依赖） |
 | 环境配置 | python-dotenv（.env 文件） |
-| 测试框架 | pytest（261 用例） |
+| 测试框架 | pytest（49 文件，835 用例） |
 | 版本控制 | Git |
 
 ---
@@ -157,10 +157,10 @@ python -c "from modules.setup_wizard import write_env_file; write_env_file(token
 ### 4.1 初始化数据库（只需做一次）
 
 ```bash
-python -m modules.database
+python -m core.database
 ```
 
-创建 8 张表：
+创建 15 张表：
 - `stock_basic`：股票基本信息
 - `daily_kline`：日线 K 线
 - `indicator_cache`：技术指标缓存
@@ -168,7 +168,14 @@ python -m modules.database
 - `financial_data`：财务报表
 - `trade_signals`：交易信号
 - `trade_records`：交易记录
+- `sync_log`：数据同步日志
 - `watchlist`：自选股观察池
+- `tushare_indicator_cache`：Tushare 官方指标（diff 验证）
+- `llm_response_log`：LLM 响应耗时日志
+- `tracking_pool_self`：追踪池
+- `tracking_records_self`：追踪记录
+- `monthly_reviews_self`：月度复盘
+- `strategy_performance_self`：策略表现
 
 ### 4.2 同步股票基本信息
 
@@ -549,7 +556,7 @@ context = reviewer.prepare_review_context("600487.SH")
 
 ## 12 知识文档索引
 
-`knowledge/` 目录下包含 14 篇交易体系文档，是量化代码的语料基础：
+`core/knowledge/` 目录下包含 29 篇交易体系文档，是量化代码的语料基础：
 
 | 文件 | 核心内容 |
 |------|---------|
